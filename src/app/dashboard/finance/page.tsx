@@ -61,20 +61,20 @@ const monthlyChartConfig = {
 } satisfies ChartConfig
 
 const churnChartConfig = {
-    new: { label: "Novos Membros", color: "hsl(var(--primary))" },
+    new: { label: "Novos Alunos", color: "hsl(var(--primary))" },
     churn: { label: "Cancelamentos", color: "hsl(var(--destructive))" },
 } satisfies ChartConfig
 
-const AddTransactionDialog = ({ open, onOpenChange, prefilledMemberId, onAdd, plans, members }: { open: boolean, onOpenChange: (open: boolean) => void, prefilledMemberId: string, onAdd: (t: Omit<Transaction, 'id'>) => void, plans: MembershipPlan[], members: {id: string, name: string}[] }) => {
+const AddTransactionDialog = ({ open, onOpenChange, prefilledStudentId, onAdd, plans, members }: { open: boolean, onOpenChange: (open: boolean) => void, prefilledStudentId: string, onAdd: (t: Omit<Transaction, 'id'>) => void, plans: MembershipPlan[], members: {id: string, name: string}[] }) => {
     const [selectedPlanId, setSelectedPlanId] = useState<string>('');
     const [amount, setAmount] = useState<string>('');
 
     useEffect(() => {
-        if (open && prefilledMemberId) {
+        if (open && prefilledStudentId) {
             setSelectedPlanId('');
             setAmount('');
         }
-    }, [open, prefilledMemberId]);
+    }, [open, prefilledStudentId]);
     
     const handlePlanChange = (planId: string) => {
         const plan = plans.find(p => p.id === planId);
@@ -87,15 +87,15 @@ const AddTransactionDialog = ({ open, onOpenChange, prefilledMemberId, onAdd, pl
     const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         const formData = new FormData(e.currentTarget);
-        const memberId = formData.get("memberId") as string;
-        const selectedMember = members.find(m => m.id === memberId);
+        const studentId = formData.get("studentId") as string;
+        const selectedMember = members.find(m => m.id === studentId);
         const selectedPlan = plans.find(p => p.id === selectedPlanId);
 
         if(!selectedMember || !selectedPlan) return;
     
         const newTransaction: Omit<Transaction, 'id'> = {
-            member: selectedMember.name,
-            memberId: selectedMember.id,
+            studentName: selectedMember.name,
+            studentId: selectedMember.id,
             amount: parseFloat(amount),
             status: formData.get("status") as Transaction['status'],
             type: formData.get("type") as Transaction['type'],
@@ -122,10 +122,10 @@ const AddTransactionDialog = ({ open, onOpenChange, prefilledMemberId, onAdd, pl
                 </DialogHeader>
                 <form onSubmit={handleSubmit} className="space-y-4">
                      <div className="space-y-2">
-                        <Label htmlFor="memberId">Membro</Label>
-                        <Select name="memberId" required defaultValue={prefilledMemberId}>
-                            <SelectTrigger id="memberId">
-                                <SelectValue placeholder="Selecione um membro" />
+                        <Label htmlFor="studentId">Aluno</Label>
+                        <Select name="studentId" required defaultValue={prefilledStudentId}>
+                            <SelectTrigger id="studentId">
+                                <SelectValue placeholder="Selecione um aluno" />
                             </SelectTrigger>
                             <SelectContent>
                                 {members.map(member => (
@@ -173,7 +173,7 @@ const AddTransactionDialog = ({ open, onOpenChange, prefilledMemberId, onAdd, pl
                         </div>
                         <div className="space-y-2">
                             <Label htmlFor="type">Tipo</Label>
-                            <Select name="type" required defaultValue={prefilledMemberId ? "Primeiro Pagamento" : "Renovação"}>
+                            <Select name="type" required defaultValue={prefilledStudentId ? "Primeiro Pagamento" : "Renovação"}>
                                 <SelectTrigger id="type">
                                     <SelectValue placeholder="Selecione o tipo" />
                                 </SelectTrigger>
@@ -253,7 +253,7 @@ export default function FinancePage() {
   const [tableFilter, setTableFilter] = useState("all");
   const [dateFilter, setDateFilter] = useState("all-time");
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
-  const [prefilledMemberId, setPrefilledMemberId] = useState('');
+  const [prefilledStudentId, setPrefilledStudentId] = useState('');
   const [memberChurnData, setMemberChurnData] = useState<any[]>([]);
   const { toast } = useToast();
   const searchParams = useSearchParams();
@@ -294,9 +294,9 @@ export default function FinancePage() {
   }, []);
 
   useEffect(() => {
-    const newMemberId = searchParams.get('new_member_id');
-    if (newMemberId) {
-      setPrefilledMemberId(decodeURIComponent(newMemberId));
+    const newStudentId = searchParams.get('new_student_id');
+    if (newStudentId) {
+      setPrefilledStudentId(decodeURIComponent(newStudentId));
       setIsAddDialogOpen(true);
       router.replace('/dashboard/finance', {scroll: false});
     }
@@ -369,10 +369,10 @@ export default function FinancePage() {
     toast({ title: "Status Atualizado", description: `A transação ${id} foi marcada como ${newStatus}.` });
   };
 
-  const handleCancelSubscription = (memberId: string) => {
-    cancelSubscription(memberId);
+  const handleCancelSubscription = (studentId: string) => {
+    cancelSubscription(studentId);
     setTransactions(getAllTransactions()); // Refresh transactions to show cancellation
-    toast({ title: "Assinatura Cancelada", description: `A assinatura do membro foi cancelada.`, variant: "destructive" });
+    toast({ title: "Plano Cancelado", description: `O plano do aluno foi cancelado.`, variant: "destructive" });
   };
   
   const handleExport = (type: 'CSV') => {
@@ -385,9 +385,9 @@ export default function FinancePage() {
   const handleAddTransaction = (newTransaction: Omit<Transaction, 'id'>) => {
     addFinanceTransaction(newTransaction);
     setTransactions(getAllTransactions());
-    toast({ title: "Transação Adicionada", description: `Nova transação para ${newTransaction.member} foi criada.` });
+    toast({ title: "Transação Adicionada", description: `Nova transação para ${newTransaction.studentName} foi criada.` });
     setIsAddDialogOpen(false);
-    setPrefilledMemberId('');
+    setPrefilledStudentId('');
   };
   
   const handleAddPlan = (newPlan: Omit<MembershipPlan, 'id'>) => {
@@ -412,7 +412,7 @@ export default function FinancePage() {
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
             <h1 className="text-3xl font-bold tracking-tight">Financeiro</h1>
-            <p className="text-muted-foreground">Visão geral financeira da academia.</p>
+            <p className="text-muted-foreground">Visão geral financeira.</p>
         </div>
         <div className="flex w-full sm:w-auto gap-2">
             <Button variant="outline" className="w-full" onClick={() => handleExport('CSV')}>
@@ -423,9 +423,9 @@ export default function FinancePage() {
                 open={isAddDialogOpen}
                 onOpenChange={(isOpen) => {
                     setIsAddDialogOpen(isOpen);
-                    if (!isOpen) setPrefilledMemberId('');
+                    if (!isOpen) setPrefilledStudentId('');
                 }}
-                prefilledMemberId={prefilledMemberId}
+                prefilledStudentId={prefilledStudentId}
                 onAdd={handleAddTransaction}
                 plans={plans}
                 members={members}
@@ -478,7 +478,7 @@ export default function FinancePage() {
             </Card>
             <Card>
               <CardHeader className="flex flex-row items-center justify-between pb-2">
-                <CardTitle className="text-sm font-medium">Novos Membros</CardTitle>
+                <CardTitle className="text-sm font-medium">Novos Alunos</CardTitle>
                 <UserCheck className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
@@ -509,8 +509,8 @@ export default function FinancePage() {
               </Card>
               <Card>
                   <CardHeader>
-                      <CardTitle>Membros: Novos vs. Cancelados</CardTitle>
-                      <CardDescription>Balanço de crescimento de membros nos últimos 6 meses.</CardDescription>
+                      <CardTitle>Alunos: Novos vs. Cancelados</CardTitle>
+                      <CardDescription>Balanço de crescimento de alunos nos últimos 6 meses.</CardDescription>
                   </CardHeader>
                   <CardContent>
                       <ChartContainer config={churnChartConfig} className="w-full h-[300px]">
@@ -553,7 +553,7 @@ export default function FinancePage() {
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Membro</TableHead>
+                    <TableHead>Aluno</TableHead>
                     <TableHead className="hidden sm:table-cell">Data</TableHead>
                     <TableHead>Tipo</TableHead>
                     <TableHead>Status</TableHead>
@@ -566,7 +566,7 @@ export default function FinancePage() {
                 <TableBody>
                   {transactionsForTable.slice(0, 15).map((transaction) => (
                     <TableRow key={transaction.id}>
-                      <TableCell className="font-medium">{transaction.member}</TableCell>
+                      <TableCell className="font-medium">{transaction.studentName}</TableCell>
                       <TableCell className="hidden sm:table-cell">{format(parseISO(transaction.date), 'dd/MM/yyyy')}</TableCell>
                        <TableCell>
                           <Badge variant={transaction.type === 'Primeiro Pagamento' ? 'default' : 'secondary'} className={cn(transaction.type === 'Primeiro Pagamento' && 'bg-blue-500/10 text-blue-400 border-blue-500/20')}>
@@ -607,11 +607,11 @@ export default function FinancePage() {
                                 <AlertDialogContent>
                                     <AlertDialogHeader>
                                         <AlertDialogTitle>Você tem certeza?</AlertDialogTitle>
-                                        <AlertDialogDescription>Isso cancelará permanentemente a assinatura para {transaction.member}. O status do membro será definido como 'Inativo'.</AlertDialogDescription>
+                                        <AlertDialogDescription>Isso cancelará permanentemente o plano de {transaction.studentName}. O status do aluno será definido como 'Inativo'.</AlertDialogDescription>
                                     </AlertDialogHeader>
                                     <AlertDialogFooter>
                                         <AlertDialogCancel>Voltar</AlertDialogCancel>
-                                        <AlertDialogAction onClick={() => handleCancelSubscription(transaction.memberId)}>Confirmar</AlertDialogAction>
+                                        <AlertDialogAction onClick={() => handleCancelSubscription(transaction.studentId)}>Confirmar</AlertDialogAction>
                                     </AlertDialogFooter>
                                 </AlertDialogContent>
                             </AlertDialog>
@@ -627,7 +627,7 @@ export default function FinancePage() {
         
           <Card>
               <CardHeader>
-                  <CardTitle>Planos de Assinatura</CardTitle>
+                  <CardTitle>Planos de Consultoria</CardTitle>
                   <CardDescription>Gerencie os planos disponíveis.</CardDescription>
               </CardHeader>
               <CardContent>

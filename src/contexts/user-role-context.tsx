@@ -4,7 +4,7 @@
 import { createContext, useContext, useState, ReactNode } from 'react';
 import { allUsers as userDirectory } from '@/lib/user-directory';
 
-export type UserRole = "Student" | "Trainer" | "Gym";
+export type UserRole = "Student" | "Trainer";
 
 export interface User {
   id: string; // Add ID to user object
@@ -18,9 +18,6 @@ export interface User {
   cref?: string;
   specializations?: string;
   bio?: string;
-  // Gym specific
-  phone?: string;
-  address?: string;
 }
 
 interface UserRoleContextType {
@@ -35,7 +32,6 @@ const UserRoleContext = createContext<UserRoleContextType | undefined>(undefined
 // Find users from the directory to use as mock data
 const mockStudent = userDirectory.find(u => u.id === 'stu-001');
 const mockTrainer = userDirectory.find(u => u.id === 'trn-001');
-const mockGym = userDirectory.find(u => u.id === 'gym-001');
 
 // Mock progress data to get the latest weight, ensuring consistency with progress page
 const studentProgressData = [
@@ -64,13 +60,6 @@ const MOCK_USERS: Record<UserRole, User> = {
         specializations: "Treinamento Funcional, Nutrição Esportiva, Biomecânica", 
         bio: "Personal trainer com mais de 10 anos de experiência, focado em ajudar clientes a atingir seu potencial máximo através de ciência e dedicação."
     },
-    Gym: { 
-        id: mockGym!.id,
-        name: mockGym!.name, 
-        email: mockGym!.email, 
-        phone: "(11) 98765-4321", 
-        address: "Rua dos Atletas, 123, São Paulo - SP" 
-    },
 }
 
 // Function to check if the profile for a given role is complete
@@ -80,8 +69,6 @@ const checkProfileCompleteness = (user: User, role: UserRole): boolean => {
             return !!user.height && !!user.weight && !!user.birthdate;
         case "Trainer":
             return !!user.cref && !!user.specializations && !!user.bio;
-        case "Gym":
-            return !!user.phone && !!user.address;
         default:
             return false;
     }

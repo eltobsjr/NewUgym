@@ -35,14 +35,12 @@ const findUser = (id: string, nameOnError: string = 'Desconhecido') => {
 const initialTasks: TasksState = {
     todo: [
         { id: 'task-1', title: 'Revisar plano de treino de Maria Garcia', description: 'Verificar se os pesos estão adequados.', status: 'todo', dueDate: '2024-08-15', assignee: findUser('trn-1', 'John Carter') },
-        { id: 'task-2', title: 'Comprar novos tapetes de yoga', status: 'todo', dueDate: '2024-08-20', assignee: findUser('gym-001', 'Gym Admin One') },
         { id: 'task-3', title: 'Medir progresso mensal', description: 'Tirar fotos e atualizar planilha de medidas.', status: 'todo', assignee: findUser('stu-001', 'Alice Johnson') }
     ],
     in_progress: [
         { id: 'task-4', title: 'Preparar seminário de nutrição', description: 'Montar a apresentação de slides.', status: 'in_progress', dueDate: '2024-08-10', assignee: findUser('trn-2', 'Sophie Brown') }
     ],
     done: [
-        { id: 'task-5', title: 'Limpar a área de pesos livres', status: 'done', dueDate: '2024-08-01', assignee: findUser('gym-001', 'Gym Admin One') },
         { id: 'task-6', title: 'Confirmar participação na aula de spinning', status: 'done', assignee: findUser('alex-johnson', 'Alex Johnson') }
     ]
 };

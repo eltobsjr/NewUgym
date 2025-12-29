@@ -30,8 +30,4 @@ export const allUsers: DirectoryUser[] = [
     { id: "trn-002", name: "Fiona Davis", email: "fiona.d@email.com", role: "Trainer" },
     { id: "trn-1", name: "John Carter", email: "john.carter@email.com", role: "Trainer" },
     { id: "trn-2", name: "Sophie Brown", email: "sophie.brown@email.com", role: "Trainer" },
-    
-    // Gym Admins (though they aren't typically "added", they exist in the system)
-    { id: "gym-001", name: "Gym Admin One", email: "admin@pro-fit.com", role: "Gym" },
-    { id: "gym-002", name: "Powerhouse Gym", email: "manager@powerhouse.com", role: "Gym" },
 ];

@@ -42,7 +42,7 @@ const AddTaskDialog = () => {
     // Users that can be assigned tasks
     const assignableUsers = userRole === 'Trainer' 
         ? allUsers.filter(u => u.role === 'Student')
-        : allUsers.filter(u => u.role !== 'Gym');
+        : allUsers;
 
     const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();

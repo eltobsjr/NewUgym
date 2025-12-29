@@ -1,93 +1,75 @@
-# Ugym - DocumentaÃ§Ã£o Funcional
+# Ugym - Documentação Funcional
 
 Este documento descreve as funcionalidades, entidades e relacionamentos do aplicativo Ugym.
 
 ## 1. Entidades Principais
 
-O sistema possui trÃªs tipos de usuÃ¡rios (entidades) com diferentes permissÃµes e capacidades:
+O sistema possui dois tipos de usuários (entidades) com diferentes permissões e capacidades:
 
--   **Aluno (Student)**: O usuÃ¡rio final que realiza os treinos e acompanha seu progresso.
--   **Personal (Trainer)**: O profissional que gerencia alunos, cria e atribui planos de treino.
--   **Academia (Gym)**: O administrador que gerencia as operaÃ§Ãµes da academia, incluindo membros, personais e finanÃ§as.
+-   **Aluno (Student)**: O usuário final que realiza os treinos e acompanha seu progresso.
+-   **Personal (Trainer)**: O profissional que gerencia alunos, cria e atribui planos de treino, e administra seu próprio negócio.
 
 ---
 
 ## 2. Funcionalidades por Entidade
 
-### ðŸ‘¤ Aluno (Student)
+###  Aluno (Student)
 
--   **Dashboard**: Visualiza um resumo de suas atividades, como treinos concluÃ­dos, sÃ©rie de dias ativos e tarefas pendentes.
+-   **Dashboard**: Visualiza um resumo de suas atividades, como treinos concluídos, série de dias ativos e tarefas pendentes.
 -   **Gerenciamento de Treinos**:
-    -   Ativa um plano de treino atribuÃ­do por um personal ou um plano criado por ele mesmo.
-    -   Cria planos de treino personalizados manualmente ou com assistÃªncia de IA.
-    -   Edita qualquer plano de treino em sua lista (atribuÃ­do ou pessoal).
+    -   Ativa um plano de treino atribuído por um personal ou um plano criado por ele mesmo.
+    -   Cria planos de treino personalizados manualmente ou com assistência de IA.
+    -   Edita qualquer plano de treino em sua lista (atribuído ou pessoal).
     -   Exclui planos de treino que criou.
--   **ExecuÃ§Ã£o de Treino**:
-    -   Visualiza o plano semanal ativo com os exercÃ­cios de cada dia.
-    -   Marca exercÃ­cios e sÃ©ries como concluÃ­dos.
-    -   Registra cargas (peso) e repetiÃ§Ãµes para cada sÃ©rie de um exercÃ­cio.
+-   **Execução de Treino**:
+    -   Visualiza o plano semanal ativo com os exercícios de cada dia.
+    -   Marca exercícios e séries como concluídos.
+    -   Registra cargas (peso) e repetições para cada série de um exercício.
 -   **Acompanhamento de Progresso**:
-    -   Registra mÃ©tricas corporais (peso, altura, % de gordura, medidas).
-    -   Visualiza grÃ¡ficos da evoluÃ§Ã£o de suas mÃ©tricas ao longo do tempo.
--   **Biblioteca de ExercÃ­cios**:
-    -   Pesquisa exercÃ­cios para ver descriÃ§Ãµes detalhadas, mÃºsculos trabalhados, dicas de seguranÃ§a e um GIF demonstrativo gerado por IA.
+    -   Registra métricas corporais (peso, altura, % de gordura, medidas).
+    -   Visualiza gráficos da evolução de suas métricas ao longo do tempo.
+-   **Biblioteca de Exercícios**:
+    -   Pesquisa exercícios para ver descrições detalhadas, músculos trabalhados, dicas de segurança e um GIF demonstrativo gerado por IA.
 -   **Gerenciador de Tarefas**:
-    -   Visualiza e gerencia suas tarefas pessoais ou aquelas atribuÃ­das por um personal em um quadro Kanban.
--   **CalendÃ¡rio de Eventos**:
-    -   Visualiza eventos da academia (aulas, seminÃ¡rios).
+    -   Visualiza e gerencia suas tarefas pessoais ou aquelas atribuídas por um personal em um quadro Kanban.
+-   **Calendário de Eventos**:
+    -   Visualiza eventos (aulas, seminários).
     -   Inscreve-se nos eventos.
 -   **Mensalidade**:
     -   Visualiza o status atual de sua assinatura (plano, valor, vencimento).
-    -   VÃª o histÃ³rico de pagamentos.
-    -   Pode cancelar a prÃ³pria assinatura.
--   **ConfiguraÃ§Ãµes**:
-    -   Edita suas informaÃ§Ãµes de perfil (nome, altura, peso, etc.).
-    -   Personaliza a aparÃªncia do aplicativo (tema claro/escuro e paleta de cores).
+    -   Vê o histórico de pagamentos.
+    -   Pode cancelar a própria assinatura.
+-   **Configurações**:
+    -   Edita suas informações de perfil (nome, altura, peso, etc.).
+    -   Personaliza a aparência do aplicativo (tema claro/escuro e paleta de cores).
 
-### ðŸ’ª Personal (Trainer)
+###  Personal (Trainer)
 
--   **Dashboard**: Visualiza um resumo do engajamento de seus alunos, identificando quem precisa de mais atenÃ§Ã£o.
+-   **Dashboard**: Visualiza um resumo do engajamento de seus alunos, identificando quem precisa de mais atenção.
 -   **Gerenciamento de Alunos**:
-    -   Adiciona/vincula alunos existentes na plataforma Ã  sua lista de clientes.
+    -   Adiciona/vincula alunos existentes na plataforma à sua lista de clientes.
     -   Visualiza a lista de todos os seus alunos.
-    -   Acessa a pÃ¡gina de progresso detalhado de cada aluno.
+    -   Acessa a página de progresso detalhado de cada aluno.
 -   **Gerenciamento de Treinos**:
-    -   Cria modelos (templates) de planos de treino reutilizÃ¡veis, manualmente ou com IA.
-    -   Atribui seus modelos de treino para um ou mais alunos de uma sÃ³ vez. O aluno recebe uma cÃ³pia do plano para seguir.
+    -   Cria modelos (templates) de planos de treino reutilizáveis, manualmente ou com IA.
+    -   Atribui seus modelos de treino para um ou mais alunos de uma só vez. O aluno recebe uma cópia do plano para seguir.
     -   Visualiza e edita os planos de treino ativos de cada um de seus alunos.
+-   **Financeiro**:
+    -   Visualiza um dashboard financeiro com faturamento, inadimplência e crescimento.
+    -   Registra transações de pagamento manualmente.
+    -   Cria e gerencia os planos de assinatura (ex: Plano Mensal, Anual).
+    -   Cancela a assinatura de um aluno, o que o torna 'Inativo'.
 -   **Gerenciador de Tarefas**:
     -   Cria e atribui tarefas para seus alunos ou para si mesmo.
     -   Acompanha o andamento das tarefas em um quadro Kanban compartilhado.
--   **CalendÃ¡rio de Eventos**:
-    -   Adiciona novos eventos e aulas ao calendÃ¡rio compartilhado.
-
-### ðŸ¢ Academia (Gym)
-
--   **Dashboard**: Visualiza mÃ©tricas de alto nÃ­vel, como crescimento no nÃºmero de membros, faturamento e aulas do dia.
--   **Gerenciamento de Membros (Alunos)**:
-    -   Adiciona/vincula novos membros (alunos) Ã  academia.
-    -   Visualiza a lista completa de membros e o status de suas assinaturas (Ativo, Inativo, Atrasado).
--   **Gerenciamento de Personais (Trainers)**:
-    -   Adiciona/vincula novos personais Ã  equipe da academia.
-    -   Visualiza a lista de personais e o nÃºmero de clientes de cada um.
--   **Financeiro**:
-    -   Visualiza um dashboard financeiro com faturamento, inadimplÃªncia e crescimento.
-    -   Registra transaÃ§Ãµes de pagamento manualmente.
-    -   Cria e gerencia os planos de assinatura (ex: Plano Mensal, Anual).
-    -   Cancela a assinatura de um membro, o que o torna "Inativo".
--   **Gerenciador de Tarefas**:
-    -   Cria e atribui tarefas para a equipe (outros administradores ou personais).
-    -   Visualiza o quadro Kanban com todas as tarefas da academia.
--   **CalendÃ¡rio de Eventos**:
-    -   Gerencia o calendÃ¡rio de eventos, podendo adicionar aulas, seminÃ¡rios, etc.
+-   **Calendário de Eventos**:
+    -   Adiciona novos eventos e aulas ao calendário compartilhado.
 
 ---
 
-## 3. Relacionamentos e InteraÃ§Ãµes
+## 3. Relacionamentos e Interações
 
--   `Academia -> Personal`: A academia gerencia a lista de personais que fazem parte de sua equipe.
--   `Academia -> Aluno (Membro)`: A academia gerencia a lista de todos os membros e suas assinaturas. O status financeiro de um membro (determinado pela academia) define se ele estÃ¡ "Ativo" ou "Inativo".
--   `Personal -> Aluno`: Um personal tem uma lista de alunos que sÃ£o seus clientes. Essa lista Ã© um subconjunto dos membros da academia. O personal pode ver o progresso detalhado de seus alunos e gerenciar seus planos de treino.
--   `Personal -> Plano de Treino -> Aluno`: Um personal cria um **modelo** de plano de treino. Ao atribuÃ­-lo a um aluno, uma **cÃ³pia** desse plano Ã© criada para o aluno. O aluno pode entÃ£o seguir e modificar essa cÃ³pia, e o personal pode visualizar e editar essa cÃ³pia especÃ­fica.
--   `Aluno -> Plano de Treino`: O aluno pode criar seus prÃ³prios planos de treino do zero, que sÃ³ sÃ£o visÃ­veis para ele e seu personal.
--   `CalendÃ¡rio e Tarefas`: SÃ£o funcionalidades compartilhadas. Um personal ou academia pode criar um evento/tarefa e um aluno pode visualizÃ¡-lo ou ser o responsÃ¡vel por ele.
+-   Personal -> Aluno: Um personal tem uma lista de alunos que são seus clientes. O personal pode ver o progresso detalhado de seus alunos e gerenciar seus planos de treino.
+-   Personal -> Plano de Treino -> Aluno: Um personal cria um **modelo** de plano de treino. Ao atribuí-lo a um aluno, uma **cópia** desse plano é criada para o aluno. O aluno pode então seguir e modificar essa cópia, e o personal pode visualizar e editar essa cópia específica.
+-   Aluno -> Plano de Treino: O aluno pode criar seus próprios planos de treino do zero, que só são visíveis para ele e seu personal.
+-   Calendário e Tarefas: São funcionalidades compartilhadas. Um personal pode criar um evento/tarefa e um aluno pode visualizá-lo ou ser o responsável por ele.

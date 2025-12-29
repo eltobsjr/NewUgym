@@ -33,6 +33,29 @@ const studentData: { [key: string]: any } = {
       { date: '2024-07-01', weight: 86, bodyFat: 22, arm: 40, leg: 61.5, waist: 90 },
       { date: '2024-08-01', weight: 85, bodyFat: 21, arm: 40.5, leg: 62, waist: 88 },
     ],
+    performanceData: {
+      'Supino Reto': [
+        { date: '2024-05-01', weight: 60 },
+        { date: '2024-05-15', weight: 62 },
+        { date: '2024-06-01', weight: 65 },
+        { date: '2024-06-15', weight: 68 },
+        { date: '2024-07-01', weight: 70 },
+        { date: '2024-07-15', weight: 72 },
+        { date: '2024-08-01', weight: 75 },
+      ],
+      'Agachamento Livre': [
+        { date: '2024-05-01', weight: 80 },
+        { date: '2024-06-01', weight: 90 },
+        { date: '2024-07-01', weight: 100 },
+        { date: '2024-08-01', weight: 110 },
+      ],
+      'Levantamento Terra': [
+        { date: '2024-05-01', weight: 90 },
+        { date: '2024-06-01', weight: 100 },
+        { date: '2024-07-01', weight: 110 },
+        { date: '2024-08-01', weight: 120 },
+      ]
+    }
   },
   'maria-garcia': {
     name: 'Maria Garcia',
@@ -43,6 +66,20 @@ const studentData: { [key: string]: any } = {
       { date: '2024-07-01', weight: 62, bodyFat: 25, arm: 33, leg: 56, waist: 71 },
       { date: '2024-08-01', weight: 62, bodyFat: 24.5, arm: 33, leg: 56, waist: 70 },
     ],
+    performanceData: {
+      'Leg Press 45': [
+        { date: '2024-05-01', weight: 100 },
+        { date: '2024-06-01', weight: 110 },
+        { date: '2024-07-01', weight: 120 },
+        { date: '2024-08-01', weight: 130 },
+      ],
+      'Cadeira Extensora': [
+        { date: '2024-05-01', weight: 30 },
+        { date: '2024-06-01', weight: 35 },
+        { date: '2024-07-01', weight: 40 },
+        { date: '2024-08-01', weight: 45 },
+      ]
+    }
   },
   'david-chen': {
     name: 'David Chen',
@@ -67,7 +104,13 @@ const studentData: { [key: string]: any } = {
     progressData: [
         { date: '2024-07-15', weight: 70, bodyFat: 20, arm: 35, leg: 55, waist: 80 },
         { date: '2024-08-01', weight: 69, bodyFat: 19.5, arm: 35.5, leg: 55.5, waist: 79 },
-    ]
+    ],
+    performanceData: {
+      'Supino Reto': [
+        { date: '2024-07-15', weight: 50 },
+        { date: '2024-08-01', weight: 55 },
+      ]
+    }
   }
 };
 
@@ -208,10 +251,14 @@ export default function StudentProgressPage({ params: paramsPromise }: { params:
   // Use a fallback if studentId is not in mock data
   const data = studentData[params.studentId] || studentData['default'];
   const name = allUsers.find(u => u.id === params.studentId)?.name || 'Aluno';
-  const { heightInCm, progressData } = data;
+  const { heightInCm, progressData, performanceData } = data;
   
   const studentWorkoutPlan = getStudentPlan(params.studentId);
   const workoutProgress = getStudentWorkoutProgress(params.studentId);
+
+  const exerciseList = performanceData ? Object.keys(performanceData) : [];
+  const [selectedExercise, setSelectedExercise] = useState(exerciseList.length > 0 ? exerciseList[0] : '');
+  const [performanceChartType, setPerformanceChartType] = useState<keyof typeof chartComponents>('line');
 
   const currentWeight = progressData[progressData.length - 1].weight;
   const previousWeight = progressData.length > 1 ? progressData[progressData.length - 2].weight : currentWeight;
@@ -405,6 +452,50 @@ export default function StudentProgressPage({ params: paramsPromise }: { params:
         </CardHeader>
         <CardContent>
            <ChartComponent type={chartType} data={progressData} metric={selectedMetric} />
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-4">
+             <div>
+                <CardTitle>Evolução de Cargas e Desempenho</CardTitle>
+                <CardDescription>Acompanhe a progressão de carga nos exercícios.</CardDescription>
+             </div>
+             <div className="flex gap-2">
+                {exerciseList.length > 0 && (
+                    <Select value={selectedExercise} onValueChange={setSelectedExercise}>
+                        <SelectTrigger className="w-full sm:w-[200px]">
+                            <SelectValue placeholder="Selecionar Exercício" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            {exerciseList.map(ex => (
+                                <SelectItem key={ex} value={ex}>{ex}</SelectItem>
+                            ))}
+                        </SelectContent>
+                    </Select>
+                )}
+                <Select value={performanceChartType} onValueChange={(v) => setPerformanceChartType(v as any)}>
+                    <SelectTrigger className="w-full sm:w-[150px]">
+                        <SelectValue placeholder="Tipo de Gráfico" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="line">Linha</SelectItem>
+                        <SelectItem value="bar">Barras</SelectItem>
+                        <SelectItem value="area">Área</SelectItem>
+                    </SelectContent>
+                </Select>
+             </div>
+          </div>
+        </CardHeader>
+        <CardContent>
+           {performanceData && selectedExercise && performanceData[selectedExercise] ? (
+               <ChartComponent type={performanceChartType} data={performanceData[selectedExercise]} metric="weight" />
+           ) : (
+               <div className="flex items-center justify-center h-[300px] text-muted-foreground">
+                   Nenhum dado de desempenho disponível para este exercício.
+               </div>
+           )}
         </CardContent>
       </Card>
 

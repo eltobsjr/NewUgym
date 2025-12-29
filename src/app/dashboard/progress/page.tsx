@@ -23,6 +23,30 @@ const progressData = [
   { date: '2024-08-01', weight: 80, bodyFat: 18, arm: 39.5, leg: 60, waist: 85 },
 ];
 
+const performanceData: { [key: string]: { date: string; weight: number }[] } = {
+  'Supino Reto': [
+    { date: '2024-05-01', weight: 60 },
+    { date: '2024-05-15', weight: 62 },
+    { date: '2024-06-01', weight: 65 },
+    { date: '2024-06-15', weight: 68 },
+    { date: '2024-07-01', weight: 70 },
+    { date: '2024-07-15', weight: 72 },
+    { date: '2024-08-01', weight: 75 },
+  ],
+  'Agachamento Livre': [
+    { date: '2024-05-01', weight: 80 },
+    { date: '2024-06-01', weight: 90 },
+    { date: '2024-07-01', weight: 100 },
+    { date: '2024-08-01', weight: 110 },
+  ],
+  'Levantamento Terra': [
+    { date: '2024-05-01', weight: 90 },
+    { date: '2024-06-01', weight: 100 },
+    { date: '2024-07-01', weight: 110 },
+    { date: '2024-08-01', weight: 120 },
+  ]
+};
+
 const calculateBmi = (weight: number, height: number) => {
     if(!height) return 0;
     return (weight / ((height / 100) * (height / 100))).toFixed(1);
@@ -86,6 +110,11 @@ export default function ProgressPage() {
   const [chartType, setChartType] = useState<keyof typeof chartComponents>('line');
   const [selectedMetric, setSelectedMetric] = useState('weight');
   const [isModalOpen, setIsModalOpen] = useState(false);
+  
+  const exerciseList = Object.keys(performanceData);
+  const [selectedExercise, setSelectedExercise] = useState(exerciseList.length > 0 ? exerciseList[0] : '');
+  const [performanceChartType, setPerformanceChartType] = useState<keyof typeof chartComponents>('line');
+
   const { toast } = useToast();
 
   const handleAddMetric = (e: React.FormEvent<HTMLFormElement>) => {
@@ -232,6 +261,50 @@ export default function ProgressPage() {
         </CardHeader>
         <CardContent>
            <ChartComponent type={chartType} data={progressData} metric={selectedMetric} />
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-4">
+             <div>
+                <CardTitle>Evolução de Cargas e Desempenho</CardTitle>
+                <CardDescription>Acompanhe a progressão de carga nos seus exercícios.</CardDescription>
+             </div>
+             <div className="flex gap-2">
+                {exerciseList.length > 0 && (
+                    <Select value={selectedExercise} onValueChange={setSelectedExercise}>
+                        <SelectTrigger className="w-full sm:w-[200px]">
+                            <SelectValue placeholder="Selecionar Exercício" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            {exerciseList.map(ex => (
+                                <SelectItem key={ex} value={ex}>{ex}</SelectItem>
+                            ))}
+                        </SelectContent>
+                    </Select>
+                )}
+                <Select value={performanceChartType} onValueChange={(v) => setPerformanceChartType(v as any)}>
+                    <SelectTrigger className="w-full sm:w-[150px]">
+                        <SelectValue placeholder="Tipo de Gráfico" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="line">Linha</SelectItem>
+                        <SelectItem value="bar">Barras</SelectItem>
+                        <SelectItem value="area">Área</SelectItem>
+                    </SelectContent>
+                </Select>
+             </div>
+          </div>
+        </CardHeader>
+        <CardContent>
+           {selectedExercise && performanceData[selectedExercise] ? (
+               <ChartComponent type={performanceChartType} data={performanceData[selectedExercise]} metric="weight" />
+           ) : (
+               <div className="flex items-center justify-center h-[300px] text-muted-foreground">
+                   Nenhum dado de desempenho disponível para este exercício.
+               </div>
+           )}
         </CardContent>
       </Card>
 

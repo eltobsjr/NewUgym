@@ -86,7 +86,6 @@ export function UserNav() {
                 <DropdownMenuRadioGroup value={userRole} onValueChange={handleRoleChange}>
                   <DropdownMenuRadioItem value="Student">Aluno</DropdownMenuRadioItem>
                   <DropdownMenuRadioItem value="Trainer">Personal</DropdownMenuRadioItem>
-                  <DropdownMenuRadioItem value="Gym">Academia</DropdownMenuRadioItem>
                 </DropdownMenuRadioGroup>
               </DropdownMenuSubContent>
             </DropdownMenuPortal>

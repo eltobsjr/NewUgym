@@ -2,7 +2,7 @@
 
 ## Core Features:
 
-- Authentication: Implement login/register functionality for different user types (students, personal trainers, gyms) with role-based route protection.
+- Authentication: Implement login/register functionality for different user types (students, personal trainers) with role-based route protection.
 - Role-based Dashboards: Design and implement role-specific dashboards to show progress, manage students, and oversee administrative tasks.
 - Workout Management: Create a system to allow trainers to design custom workouts from a set of workout templates.  Then, let the students record whether they executed their workouts, day by day.
 - Event Calendar: Design and develop a shared event calendar.

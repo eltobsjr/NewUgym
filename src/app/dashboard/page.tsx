@@ -186,90 +186,8 @@ const TrainerDashboard = () => (
 );
 
 
-// --- Data for Gym Dashboard ---
-const gymMetrics = [
-    { title: "Total de Membros", value: "258", icon: Users, change: <span className="text-green-500 flex items-center"><ArrowUp className="h-4 w-4"/>+12 este mês</span> },
-    { title: "Treinadores Ativos", value: "12", icon: UserCheck, change: "Todos ativos" },
-    { title: "Aulas Hoje", value: "6", icon: Calendar, change: "Aula de Spinning às 18h" },
-    { title: "Manutenção", value: "3", icon: ListChecks, change: "Verificar equipamentos" }
-];
 
-const memberGrowthData = [
-  { month: 'Jan', new: 15 }, { month: 'Fev', new: 22 }, { month: 'Mar', new: 18 },
-  { month: 'Abr', new: 25 }, { month: 'Mai', new: 30 }, { month: 'Jun', new: 28 },
-];
-const gymChartConfig = { new: { label: 'Novos Membros', color: 'hsl(var(--primary))' } };
 
-const gymRecentAnnouncements = [
-    { title: 'Desafio Verão Total começa na próxima semana!', icon: Megaphone, date: '2 dias atrás' },
-    { title: 'Novos tapetes de Yoga chegaram.', icon: FileText, date: '4 dias atrás' },
-]
-
-const GymDashboard = () => (
-    <>
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-            {gymMetrics.map(metric => (
-                <Card key={metric.title}>
-                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                        <CardTitle className="text-sm font-medium">{metric.title}</CardTitle>
-                        <metric.icon className="h-4 w-4 text-muted-foreground" />
-                    </CardHeader>
-                    <CardContent>
-                        <div className="text-2xl font-bold">{metric.value}</div>
-                        <p className="text-xs text-muted-foreground">{metric.change}</p>
-                    </CardContent>
-                </Card>
-            ))}
-        </div>
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
-            <Card className="col-span-4">
-                <CardHeader>
-                    <CardTitle>Crescimento de Novos Membros</CardTitle>
-                    <CardDescription>Novas inscrições de membros mensalmente.</CardDescription>
-                </CardHeader>
-                <CardContent className="pl-2">
-                     <ChartContainer config={gymChartConfig} className="h-[250px] w-full">
-                        <LineChart data={memberGrowthData} margin={{ top: 5, right: 20, left: -10, bottom: 0 }}>
-                            <CartesianGrid vertical={false} />
-                            <XAxis dataKey="month" tickLine={false} axisLine={false} tickMargin={8} />
-                             <Tooltip cursor={false} content={<ChartTooltipContent hideLabel />} />
-                            <Line type="monotone" dataKey="new" stroke="var(--color-new)" strokeWidth={2} dot={false} />
-                        </LineChart>
-                     </ChartContainer>
-                </CardContent>
-            </Card>
-            <Card className="col-span-4 lg:col-span-3">
-                <CardHeader>
-                    <CardTitle>Anúncios e Eventos Recentes</CardTitle>
-                    <CardDescription>Últimas atualizações para seus membros.</CardDescription>
-                </CardHeader>
-                <CardContent>
-                     <div className="space-y-4">
-                        {gymRecentAnnouncements.map((item, index) => (
-                            <div key={index} className="flex items-center gap-4">
-                                <div className="bg-secondary p-2 rounded-full"><item.icon className="h-5 w-5 text-muted-foreground" /></div>
-                                <div className="flex-1">
-                                    <p className="text-sm font-medium">{item.title}</p>
-                                    <p className="text-xs text-muted-foreground">{item.date}</p>
-                                </div>
-                            </div>
-                        ))}
-                         <div className="flex items-center gap-4">
-                                <div className="bg-secondary p-2 rounded-full"><Calendar className="h-5 w-5 text-muted-foreground" /></div>
-                                <div className="flex-1">
-                                    <p className="text-sm font-medium">Próximo: Seminário de Nutrição</p>
-                                    <p className="text-xs text-muted-foreground">Em 3 dias</p>
-                                </div>
-                                <Button variant="outline" size="sm" asChild>
-                                    <Link href="/dashboard/calendar">Ver Calendário</Link>
-                                </Button>
-                           </div>
-                    </div>
-                </CardContent>
-            </Card>
-        </div>
-    </>
-);
 
 
 const renderDashboardByRole = (role: string) => {
@@ -278,8 +196,6 @@ const renderDashboardByRole = (role: string) => {
       return <StudentDashboard />;
     case 'Trainer':
       return <TrainerDashboard />;
-    case 'Gym':
-      return <GymDashboard />;
     default:
       return <StudentDashboard />;
   }
@@ -313,7 +229,7 @@ export default function DashboardPage() {
     <div className="flex flex-col gap-6">
       <WelcomeAlert />
       <h1 className="text-3xl font-bold tracking-tight">
-        Dashboard do {userRole === 'Student' ? 'Aluno' : userRole === 'Trainer' ? 'Personal' : 'Gym'}
+        Dashboard do {userRole === 'Student' ? 'Aluno' : 'Personal'}
       </h1>
       {renderDashboardByRole(userRole)}
     </div>

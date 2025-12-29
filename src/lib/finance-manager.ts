@@ -7,8 +7,8 @@ export type TransactionType = "Primeiro Pagamento" | "Renovação";
 
 export type Transaction = {
   id: string;
-  member: string; // Member name for simplicity, in a real app this would be an ID
-  memberId: string;
+  studentName: string;
+  studentId: string;
   amount: number;
   status: TransactionStatus;
   type: TransactionType;
@@ -33,7 +33,7 @@ export type StudentSubscription = {
     nextDueDate: Date;
 }
 
-export type MemberStatusInfo = {
+export type StudentStatusInfo = {
     status: 'Ativo' | 'Inativo' | 'Pendente' | 'Atrasado';
     plan: string;
     joinDate: Date | null;
@@ -42,9 +42,9 @@ export type MemberStatusInfo = {
 const initialMembers = allUsers.filter(u => u.role === 'Student');
 
 let plans: MembershipPlan[] = [
-    { id: 'plan-1', name: 'Pro Anual', price: 999.90, recurrence: 'Anual' },
-    { id: 'plan-2', name: 'Pro Mensal', price: 99.90, recurrence: 'Mensal' },
-    { id: 'plan-3', name: 'Básico Mensal', price: 59.90, recurrence: 'Mensal' },
+    { id: 'plan-1', name: 'Consultoria Premium', price: 250.00, recurrence: 'Mensal' },
+    { id: 'plan-2', name: 'Plano Trimestral', price: 600.00, recurrence: 'Mensal' },
+    { id: 'plan-3', name: 'Acompanhamento Básico', price: 120.00, recurrence: 'Mensal' },
 ];
 
 let transactions: Transaction[] = [];
@@ -76,8 +76,8 @@ export const generateMockTransactions = () => {
 
             transactions.push({
                 id: `TRN-${member.id}-${i}`,
-                memberId: member.id,
-                member: member.name,
+                studentId: member.id,
+                studentName: member.name,
                 amount: plan.price,
                 status: status,
                 type: i === 0 ? "Primeiro Pagamento" : "Renovação",
@@ -105,10 +105,10 @@ export const addTransaction = (transactionData: Omit<Transaction, 'id'>) => {
     };
     transactions.unshift(newTransaction);
     // Also update subscription if it's the first payment
-    if (transactionData.type === 'Primeiro Pagamento' && !subscriptions[transactionData.memberId]) {
+    if (transactionData.type === 'Primeiro Pagamento' && !subscriptions[transactionData.studentId]) {
         const plan = plans.find(p => p.name === transactionData.plan);
         if (plan) {
-            subscriptions[transactionData.memberId] = {
+            subscriptions[transactionData.studentId] = {
                 planId: plan.id,
                 joinDate: parseISO(transactionData.date),
                 isCancelled: false
@@ -132,7 +132,7 @@ export const cancelSubscription = (studentId: string) => {
         subscriptions[studentId].isCancelled = true;
         // Find last transaction and mark it as cancelled for future reference
         const lastTransaction = transactions
-            .filter(t => t.memberId === studentId)
+            .filter(t => t.studentId === studentId)
             .sort((a,b) => parseISO(b.date).getTime() - parseISO(a.date).getTime())[0];
         
         if (lastTransaction && lastTransaction.status !== 'Pago') {
@@ -143,7 +143,7 @@ export const cancelSubscription = (studentId: string) => {
 
 // For student billing page
 export const getStudentTransactions = (studentId: string): Transaction[] => {
-    return getAllTransactions().filter(t => t.memberId === studentId);
+    return getAllTransactions().filter(t => t.studentId === studentId);
 }
 
 export const getStudentSubscription = (studentId: string): StudentSubscription | null => {
@@ -180,8 +180,8 @@ export const getStudentSubscription = (studentId: string): StudentSubscription |
     };
 }
 
-// For gym/trainer member lists
-export const getMemberStatus = (studentId: string): MemberStatusInfo => {
+// For trainer member lists
+export const getStudentStatus = (studentId: string): StudentStatusInfo => {
     const subscription = getStudentSubscription(studentId);
 
     if (!subscription) {
@@ -192,7 +192,7 @@ export const getMemberStatus = (studentId: string): MemberStatusInfo => {
         };
     }
     
-    let status: MemberStatusInfo['status'];
+    let status: StudentStatusInfo['status'];
     switch (subscription.status) {
         case 'Ativo':
             status = 'Ativo';

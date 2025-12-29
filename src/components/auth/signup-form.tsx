@@ -71,7 +71,6 @@ export function SignupForm() {
             <SelectContent>
               <SelectItem value="Student">Aluno</SelectItem>
               <SelectItem value="Trainer">Personal Trainer</SelectItem>
-              <SelectItem value="Gym">Academia</SelectItem>
             </SelectContent>
           </Select>
         </div>

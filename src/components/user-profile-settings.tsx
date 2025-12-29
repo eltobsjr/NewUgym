@@ -76,38 +76,12 @@ const TrainerProfileForm = ({ user }: { user: User }) => (
     </div>
 );
 
-const GymProfileForm = ({ user }: { user: User }) => (
-     <div className="space-y-4">
-        <div className="space-y-2">
-            <Label htmlFor="gym-name">Nome da Academia</Label>
-            <Input id="gym-name" defaultValue={user.name} />
-        </div>
-        <div className="grid sm:grid-cols-2 gap-4">
-             <div className="space-y-2">
-                <Label htmlFor="email">Email de Contato</Label>
-                <Input id="email" type="email" defaultValue={user.email} />
-            </div>
-             <div className="space-y-2">
-                <Label htmlFor="phone">Telefone</Label>
-                <Input id="phone" type="tel" placeholder="(11) 98765-4321" defaultValue={user.phone}/>
-            </div>
-        </div>
-        <div className="space-y-2">
-            <Label htmlFor="address">Endereço</Label>
-            <Input id="address" placeholder="Rua dos Atletas, 123" defaultValue={user.address} />
-        </div>
-    </div>
-);
-
-
 const renderProfileForm = (role: UserRole, user: User) => {
     switch (role) {
         case "Student":
             return <StudentProfileForm user={user} />;
         case "Trainer":
             return <TrainerProfileForm user={user} />;
-        case "Gym":
-            return <GymProfileForm user={user} />;
         default:
             return null;
     }
@@ -132,7 +106,6 @@ export function UserProfileSettings({ user, role }: { user: User, role: UserRole
                     alt="Banner do perfil"
                     fill
                     style={{objectFit: "cover"}}
-                    data-ai-hint="gym pattern"
                 />
             </div>
             <CardHeader className="flex-col items-start gap-4 sm:flex-row p-6">

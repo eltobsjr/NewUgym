@@ -54,7 +54,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { allUsers, type DirectoryUser } from "@/lib/user-directory";
-import { getMemberStatus } from "@/lib/finance-manager";
+import { getStudentStatus } from "@/lib/finance-manager";
 import { format, subDays } from 'date-fns';
 
 type Student = {
@@ -162,7 +162,7 @@ export default function StudentsPage() {
     // Unify student list from the main user directory and enrich with status
     const studentUsers = allUsers.filter(u => u.role === 'Student');
     const studentData = studentUsers.map((user, index) => {
-        const memberStatus = getMemberStatus(user.id);
+        const memberStatus = getStudentStatus(user.id);
         const lastActiveDays = [2, 0, 7, 15, 1, 3];
 
         return {
