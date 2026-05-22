@@ -43,7 +43,6 @@
     "date-fns": "^3.6.0",
     "dotenv": "^16.6.1",
     "embla-carousel-react": "^8.6.0",
-    "firebase": "^11.10.0",
     "framer-motion": "^12.23.26",
     "genkit": "^1.26.0",
     "lucide-react": "^0.475.0",

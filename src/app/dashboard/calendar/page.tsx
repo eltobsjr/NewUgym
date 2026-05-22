@@ -20,7 +20,7 @@ const getEventDateKey = (d: Date): string => format(d, 'yyyy-MM-dd');
 
 export default function CalendarPage() {
   const { userRole, user } = useUserRole();
-  const { events, addEvent, registerForEvent, isRegistered } = useContext(EventsContext);
+  const { events, addEvent, registerForEvent, unregisterFromEvent, isRegistered } = useContext(EventsContext);
   const [date, setDate] = useState<Date | undefined>(undefined);
   const [isAddModalOpen, setAddModalOpen] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
@@ -40,7 +40,10 @@ export default function CalendarPage() {
     const type = formData.get('event-type') as EventType;
     const description = formData.get('event-description') as string;
     
-    addEvent({ title, date: dateStr, time, type, description });
+    // Build ISO start_time and end_time from date + time inputs
+    const startISO = new Date(`${dateStr}T${time}:00`).toISOString();
+    const endISO = new Date(new Date(`${dateStr}T${time}:00`).getTime() + 60 * 60 * 1000).toISOString();
+    addEvent({ title, type, description: description || '', start_time: startISO, end_time: endISO });
 
     toast({
         title: "Evento Adicionado!",
@@ -51,7 +54,7 @@ export default function CalendarPage() {
   }
 
   const handleRegister = (eventId: string) => {
-    registerForEvent(eventId, user.name); // Using user name as ID for mock
+    registerForEvent(eventId);
     toast({
       title: "Inscrição Confirmada!",
       description: "Você se inscreveu no evento com sucesso.",
@@ -130,7 +133,7 @@ export default function CalendarPage() {
           </div>
           {userRole === "Student" && (
             <DialogFooter>
-              {isRegistered(selectedEvent?.id || '', user.name) ? (
+              {isRegistered(selectedEvent?.id || '') ? (
                 <Button disabled>
                   <Ticket className="mr-2 h-4 w-4" />
                   Inscrito

@@ -82,6 +82,7 @@ const AddExerciseModal = ({ open, onOpenChange, onAddExercises }: { open: boolea
                 sets: '3',
                 reps: '10-12',
                 mediaUrl: ex.mediaUrl,
+                exerciseId: ex.exerciseDbId,
             }));
         
         onAddExercises(exercisesToAdd);
@@ -385,15 +386,6 @@ const WorkoutBuilder = ({ onSave, onBack, plan: initialPlan }: { onSave: (plan: 
     );
 };
 
-const studentsForAssignment = [
-  { id: "alex-johnson", name: "Alex Johnson" },
-  { id: "maria-garcia", name: "Maria Garcia" },
-  { id: "david-chen", name: "David Chen" },
-  { id: "sofia-davis", name: "Sofia Davis" },
-  { id: "emily-white", name: "Emily White" },
-  { id: "stu-001", name: "Alice Johnson" },
-];
-
 const AssignWorkoutModal = ({ open, onOpenChange, onAssign, planName, students }: { open: boolean, onOpenChange: (open: boolean) => void, onAssign: (studentIds: string[]) => void, planName: string, students: {id: string, name: string}[] }) => {
     const { toast } = useToast();
     const [selectedStudents, setSelectedStudents] = useState<Set<string>>(new Set());
@@ -464,7 +456,7 @@ const AssignWorkoutModal = ({ open, onOpenChange, onAssign, planName, students }
 
 const TrainerView = () => {
     const { toast } = useToast();
-    const { plans, addPlan, updatePlan, deletePlan, assignPlanToStudents, getAssignments } = useContext(WorkoutsContext);
+    const { plans, addPlan, updatePlan, deletePlan, assignPlanToStudents, getAssignments, students } = useContext(WorkoutsContext);
     const [isAiModalOpen, setIsAiModalOpen] = useState(false);
     const [view, setView] = useState<'list' | 'builder'>('list');
     const [isAssignModalOpen, setAssignModalOpen] = useState(false);
@@ -560,30 +552,18 @@ const TrainerView = () => {
             onOpenChange={setAssignModalOpen}
             planName={selectedPlan.name}
             onAssign={handleAssignStudents}
-            students={studentsForAssignment}
+            students={students}
           />
       )}
       <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
         <h1 className="text-3xl font-bold tracking-tight">Gerenciar Treinos</h1>
         <div className="flex gap-2 w-full sm:w-auto">
             <Button variant="outline" onClick={handleAddNewPlan} className="flex-1"><PlusCircle className="mr-2 h-4 w-4" />Criar Plano</Button>
-            <Dialog open={isAiModalOpen} onOpenChange={setIsAiModalOpen}>
-                <DialogTrigger asChild>
-                    <Button className="flex-1">
-                      <Sparkles className="mr-2 h-4 w-4" />
-                      Criar com IA
-                    </Button>
-                </DialogTrigger>
-                <DialogContent className="sm:max-w-[625px]">
-                    <DialogHeader>
-                        <DialogTitle>Gerador de Plano com IA</DialogTitle>
-                        <DialogDescription>
-                            Descreva os objetivos e deixe a IA criar um plano de treino completo.
-                        </DialogDescription>
-                    </DialogHeader>
-                    <GenerateWorkoutForm onPlanGenerated={handleAiGeneratedPlan} />
-                </DialogContent>
-            </Dialog>
+            <Button className="flex-1" disabled title="Funcionalidade temporariamente desativada">
+                <Sparkles className="mr-2 h-4 w-4" />
+                Criar com IA
+                <Badge variant="secondary" className="ml-2 text-xs">Em breve</Badge>
+            </Button>
         </div>
       </div>
       
@@ -787,7 +767,7 @@ const StudentView = () => {
         updateExerciseDetails,
     } = useContext(WorkoutsContext);
 
-    const studentId = user.id;
+    const studentId = user?.id ?? '';
     
     const myPlans = plans.filter(p => p.owner === studentId);
     const weeklyPlan = activeStudentPlans[studentId] ? plans.find(p => p.id === activeStudentPlans[studentId]) : null;
@@ -892,7 +872,7 @@ const StudentView = () => {
                 <h1 className="text-3xl font-bold tracking-tight">Meus Treinos</h1>
                 <div className="flex gap-2 w-full sm:w-auto">
                     <Button variant="outline" onClick={handleAddNewPlan} className="flex-1"><PlusCircle className="mr-2 h-4 w-4" />Criar Plano</Button>
-                    <Button onClick={() => setIsAiModalOpen(true)} className="flex-1"><Sparkles className="mr-2 h-4 w-4" />Criar com IA</Button>
+                    <Button className="flex-1" disabled title="Funcionalidade temporariamente desativada"><Sparkles className="mr-2 h-4 w-4" />Criar com IA<Badge variant="secondary" className="ml-2 text-xs">Em breve</Badge></Button>
                 </div>
             </div>
 

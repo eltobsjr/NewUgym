@@ -23,10 +23,27 @@ export async function GET(request: Request) {
       is_active,
       started_at,
       ends_at,
+      student_id,
+      template_id,
       student:users!workout_plans_student_id_fkey (
         id,
         name,
         email
+      ),
+      workout_days (
+        id,
+        day_name,
+        focus,
+        order_index,
+        is_rest_day,
+        workout_exercises (
+          id,
+          sets,
+          reps,
+          notes,
+          order_index,
+          exercise:exercises (id, name, media_url)
+        )
       )
     `)
     .order('created_at', { ascending: false })

@@ -1,4 +1,4 @@
-import { createClient } from '@/lib/supabase/server'
+import { createAdminClient, createClient } from '@/lib/supabase/server'
 import { signupSchema } from '@/lib/validations/auth'
 import { NextResponse } from 'next/server'
 
@@ -10,6 +10,8 @@ export async function POST(request: Request) {
     const validatedData = signupSchema.parse(body)
     
     const supabase = await createClient()
+    // Admin client necessário para bypassar RLS no insert de perfil
+    const adminClient = createAdminClient()
 
     // 1. Criar usuário no Supabase Auth
     const { data: authData, error: authError } = await supabase.auth.signUp({
@@ -31,8 +33,8 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Falha ao criar usuário' }, { status: 500 })
     }
 
-    // 2. Criar perfil na tabela users
-    const { error: profileError } = await supabase.from('users').insert({
+    // 2. Criar perfil na tabela users (admin bypassa RLS)
+    const { error: profileError } = await adminClient.from('users').insert({
       id: authData.user.id,
       email: validatedData.email,
       name: validatedData.name,
@@ -45,14 +47,14 @@ export async function POST(request: Request) {
     })
 
     if (profileError) {
-      // Tentar deletar o usuário do Auth se falhar ao criar perfil
-      await supabase.auth.admin.deleteUser(authData.user.id)
-      return NextResponse.json({ error: 'Falha ao criar perfil' }, { status: 500 })
+      console.error('[signup] profileError:', profileError)
+      await adminClient.auth.admin.deleteUser(authData.user.id)
+      return NextResponse.json({ error: `Falha ao criar perfil: ${profileError.message}` }, { status: 500 })
     }
 
     return NextResponse.json({ 
       user: authData.user,
-      message: 'Conta criada com sucesso! Verifique seu email.'
+      message: 'Conta criada com sucesso!'
     })
   } catch (error: any) {
     if (error.name === 'ZodError') {

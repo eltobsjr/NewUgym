@@ -1,6 +1,7 @@
 
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Dumbbell } from "lucide-react";
@@ -8,13 +9,43 @@ import { Dumbbell } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 export function LoginForm() {
   const router = useRouter();
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    router.push("/dashboard");
+    setError(null);
+    setIsLoading(true);
+
+    const formData = new FormData(event.currentTarget);
+    const email = formData.get('email') as string;
+    const password = formData.get('password') as string;
+
+    try {
+      const res = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        setError(data.error || 'Email ou senha incorretos.');
+        return;
+      }
+
+      router.push('/dashboard');
+      router.refresh();
+    } catch {
+      setError('Erro de conexão. Verifique sua internet.');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -30,14 +61,22 @@ export function LoginForm() {
         </p>
       </div>
 
+      {error && (
+        <Alert variant="destructive" className="w-full">
+          <AlertDescription>{error}</AlertDescription>
+        </Alert>
+      )}
+
       <form onSubmit={handleSubmit} className="w-full space-y-4">
         <div className="grid gap-2">
           <Label htmlFor="email">Email</Label>
           <Input
             id="email"
+            name="email"
             type="email"
             placeholder="m@example.com"
             required
+            disabled={isLoading}
             className="bg-background/70"
           />
         </div>
@@ -51,13 +90,17 @@ export function LoginForm() {
               Esqueceu sua senha?
             </Link>
           </div>
-          <Input id="password" type="password" required className="bg-background/70" />
+          <Input
+            id="password"
+            name="password"
+            type="password"
+            required
+            disabled={isLoading}
+            className="bg-background/70"
+          />
         </div>
-        <Button type="submit" className="w-full">
-          Login
-        </Button>
-        <Button variant="outline" className="w-full bg-background/70">
-          Login com Google
+        <Button type="submit" className="w-full" disabled={isLoading}>
+          {isLoading ? 'Entrando...' : 'Login'}
         </Button>
       </form>
 

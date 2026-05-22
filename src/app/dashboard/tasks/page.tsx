@@ -18,7 +18,7 @@ import { ptBR } from 'date-fns/locale';
 import { useToast } from '@/hooks/use-toast';
 import { TasksContext, Task, TaskStatus } from '@/contexts/tasks-context';
 import { useUserRole } from '@/contexts/user-role-context';
-import { allUsers } from '@/lib/user-directory';
+import { WorkoutsContext } from '@/contexts/workouts-context';
 import { cn } from '@/lib/utils';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
@@ -34,15 +34,14 @@ const ClientOnlyDroppable = ({ children, ...props }: DroppableProps) => {
 
 const AddTaskDialog = () => {
     const { addTask } = useContext(TasksContext);
-    const { user: currentUser, userRole } = useUserRole();
+    const { user: currentUser } = useUserRole();
+    const { students } = useContext(WorkoutsContext);
     const { toast } = useToast();
     const [open, setOpen] = useState(false);
     const [dueDate, setDueDate] = useState<Date | undefined>();
     
-    // Users that can be assigned tasks
-    const assignableUsers = userRole === 'Trainer' 
-        ? allUsers.filter(u => u.role === 'Student')
-        : allUsers;
+    // Use real students from WorkoutsContext
+    const assignableUsers = students;
 
     const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
@@ -50,7 +49,7 @@ const AddTaskDialog = () => {
         const title = formData.get('title') as string;
         const assigneeId = formData.get('assignee') as string;
 
-        const assignee = allUsers.find(u => u.id === assigneeId);
+        const assignee = students.find(u => u.id === assigneeId);
 
         if (!title || !assignee) {
              toast({ title: 'Erro', description: 'Título e responsável são obrigatórios.', variant: 'destructive' });
@@ -116,7 +115,7 @@ const AddTaskDialog = () => {
                         </div>
                          <div className="space-y-2">
                             <Label htmlFor="assignee">Responsável</Label>
-                             <Select name="assignee" required defaultValue={currentUser.id}>
+                             <Select name="assignee" required defaultValue={currentUser?.id}>
                                 <SelectTrigger>
                                     <SelectValue placeholder="Selecione um responsável" />
                                 </SelectTrigger>

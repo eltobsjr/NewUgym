@@ -1,315 +1,340 @@
-
 "use client";
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useContext } from 'react';
 import Link from 'next/link';
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
+  Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-  CardDescription,
+  Card, CardContent, CardHeader, CardTitle, CardDescription,
 } from "@/components/ui/card";
-import { MoreHorizontal, PlusCircle, List, LayoutGrid, Trash2, Edit, Search } from "lucide-react";
+import { MoreHorizontal, PlusCircle, List, LayoutGrid, Trash2, Search, Loader2 } from "lucide-react";
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuTrigger,
-  DropdownMenuSeparator,
+  DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel,
+  DropdownMenuTrigger, DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Progress } from "@/components/ui/progress";
 import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-  DialogFooter,
-  DialogTrigger,
+  Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription,
 } from "@/components/ui/dialog";
 import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
+  AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
+  AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
   AlertDialogTrigger,
-} from "@/components/ui/alert-dialog"
+} from "@/components/ui/alert-dialog";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
-import { allUsers, type DirectoryUser } from "@/lib/user-directory";
-import { getStudentStatus } from "@/lib/finance-manager";
-import { format, subDays } from 'date-fns';
+import { useUserRole } from "@/contexts/user-role-context";
 
-type Student = {
+type StudentStatus = "Ativo" | "Inativo" | "Pendente" | "Atrasado";
+
+interface Student {
   id: string;
   name: string;
   email: string;
-  avatar: string;
-  initials: string;
-  lastActive: string;
-  progress: number;
-  status: "Ativo" | "Inativo" | "Pendente" | "Atrasado";
-};
-
-const AddStudentDialog = ({ open, onOpenChange, onAddStudent }: { open: boolean, onOpenChange: (open: boolean) => void, onAddStudent: (student: Omit<Student, 'status'>) => void}) => {
-    const [searchTerm, setSearchTerm] = useState('');
-    const [searchResults, setSearchResults] = useState<DirectoryUser[]>([]);
-    
-    const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const term = e.target.value.toLowerCase();
-        setSearchTerm(term);
-        if (term.length > 2) {
-            const results = allUsers.filter(user => 
-                user.email.toLowerCase().includes(term) && user.role === 'Student'
-            );
-            setSearchResults(results);
-        } else {
-            setSearchResults([]);
-        }
-    }
-
-    const handleAddClick = (user: DirectoryUser) => {
-        const newStudent: Omit<Student, 'status'> = {
-            id: user.id,
-            name: user.name,
-            email: user.email,
-            avatar: "https://placehold.co/100x100.png",
-            initials: user.name.split(" ").map(n => n[0]).join("").toUpperCase(),
-            lastActive: 'Agora',
-            progress: 0,
-        };
-        onAddStudent(newStudent);
-        setSearchTerm('');
-        setSearchResults([]);
-    }
-
-    return (
-        <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogTrigger asChild>
-                <Button className="w-full sm:w-auto">
-                    <PlusCircle className="mr-2 h-4 w-4" />
-                    Adicionar Aluno
-                </Button>
-            </DialogTrigger>
-            <DialogContent>
-                <DialogHeader>
-                    <DialogTitle>Vincular Novo Aluno</DialogTitle>
-                    <DialogDescription>
-                    Procure por um aluno existente pelo email para adicioná-lo à sua lista.
-                    </DialogDescription>
-                </DialogHeader>
-                <div className="space-y-4">
-                    <div className="relative">
-                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                        <Input 
-                            value={searchTerm}
-                            onChange={handleSearch}
-                            placeholder="Digite o email do aluno..."
-                            className="pl-9"
-                        />
-                    </div>
-                    <div className="space-y-2 max-h-60 overflow-y-auto">
-                        {searchResults.map(user => (
-                            <div key={user.id} className="flex items-center justify-between p-2 border rounded-md">
-                                <div>
-                                    <p className="font-semibold">{user.name}</p>
-                                    <p className="text-sm text-muted-foreground">{user.email}</p>
-                                </div>
-                                <Button size="sm" onClick={() => handleAddClick(user)}>Adicionar</Button>
-                            </div>
-                        ))}
-                        {searchTerm.length > 2 && searchResults.length === 0 && (
-                            <p className="text-center text-sm text-muted-foreground">Nenhum aluno encontrado com este email.</p>
-                        )}
-                    </div>
-              </div>
-            </DialogContent>
-        </Dialog>
-    )
+  avatar_url: string | null;
+  status: StudentStatus;
 }
 
-const statusVariant: Record<Student['status'], "default" | "secondary" | "destructive"> = {
-    Ativo: "default",
-    Inativo: "secondary",
-    Pendente: "secondary",
-    Atrasado: "destructive",
+interface SearchResult {
+  id: string;
+  name: string;
+  email: string;
+}
+
+const initials = (name: string) =>
+  name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
+
+const statusVariant: Record<StudentStatus, "default" | "secondary" | "destructive"> = {
+  Ativo: "default",
+  Inativo: "secondary",
+  Pendente: "secondary",
+  Atrasado: "destructive",
 };
 
+// ─── AddStudentDialog ─────────────────────────────────────────────────────────
+
+const AddStudentDialog = ({
+  open, onOpenChange, trainerId, onAdded,
+}: {
+  open: boolean;
+  onOpenChange: (v: boolean) => void;
+  trainerId: string;
+  onAdded: () => void;
+}) => {
+  const [searchTerm, setSearchTerm] = useState('');
+  const [results, setResults] = useState<SearchResult[]>([]);
+  const [searching, setSearching] = useState(false);
+  const [adding, setAdding] = useState<string | null>(null);
+  const { toast } = useToast();
+
+  const handleSearch = async () => {
+    if (searchTerm.length < 3) return;
+    setSearching(true);
+    const res = await fetch(`/api/users/search?email=${encodeURIComponent(searchTerm)}`);
+    if (res.ok) setResults(await res.json());
+    setSearching(false);
+  };
+
+  const handleAdd = async (user: SearchResult) => {
+    setAdding(user.id);
+    const res = await fetch(`/api/trainers/${trainerId}/students`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ student_id: user.id }),
+    });
+    if (res.ok) {
+      toast({ title: 'Aluno Adicionado!', description: `${user.name} foi vinculado à sua lista.` });
+      onAdded();
+      onOpenChange(false);
+      setSearchTerm('');
+      setResults([]);
+    } else if (res.status === 409) {
+      toast({ title: 'Aluno já existe', description: `${user.name} já está na sua lista.`, variant: 'destructive' });
+    }
+    setAdding(null);
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={v => { onOpenChange(v); if (!v) { setSearchTerm(''); setResults([]); } }}>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Vincular Novo Aluno</DialogTitle>
+          <DialogDescription>Procure pelo email do aluno para adicioná-lo à sua lista.</DialogDescription>
+        </DialogHeader>
+        <div className="space-y-4">
+          <div className="flex gap-2">
+            <div className="relative flex-1">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input
+                value={searchTerm}
+                onChange={e => setSearchTerm(e.target.value)}
+                onKeyDown={e => e.key === 'Enter' && handleSearch()}
+                placeholder="Email do aluno..."
+                className="pl-9"
+              />
+            </div>
+            <Button onClick={handleSearch} disabled={searching || searchTerm.length < 3}>
+              {searching ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Buscar'}
+            </Button>
+          </div>
+          <div className="space-y-2 max-h-60 overflow-y-auto">
+            {results.map(u => (
+              <div key={u.id} className="flex items-center justify-between p-2 border rounded-md">
+                <div>
+                  <p className="font-semibold">{u.name}</p>
+                  <p className="text-sm text-muted-foreground">{u.email}</p>
+                </div>
+                <Button size="sm" onClick={() => handleAdd(u)} disabled={adding === u.id}>
+                  {adding === u.id ? <Loader2 className="h-3 w-3 animate-spin" /> : 'Adicionar'}
+                </Button>
+              </div>
+            ))}
+            {results.length === 0 && searchTerm.length >= 3 && !searching && (
+              <p className="text-center text-sm text-muted-foreground">Nenhum aluno encontrado.</p>
+            )}
+          </div>
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+};
+
+// ─── Page ─────────────────────────────────────────────────────────────────────
+
 export default function StudentsPage() {
+  const { user } = useUserRole();
   const [students, setStudents] = useState<Student[]>([]);
   const [view, setView] = useState<'list' | 'grid'>('list');
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const { toast } = useToast();
 
-  useEffect(() => {
-    // Unify student list from the main user directory and enrich with status
-    const studentUsers = allUsers.filter(u => u.role === 'Student');
-    const studentData = studentUsers.map((user, index) => {
-        const memberStatus = getStudentStatus(user.id);
-        const lastActiveDays = [2, 0, 7, 15, 1, 3];
+  const loadStudents = async () => {
+    if (!user) return;
+    setIsLoading(true);
 
-        return {
-            id: user.id,
-            name: user.name,
-            email: user.email,
-            avatar: `https://placehold.co/100x100.png`,
-            initials: user.name.split(" ").map(n => n[0]).join("").toUpperCase(),
-            lastActive: format(subDays(new Date(), lastActiveDays[index % lastActiveDays.length]), 'dd/MM/yyyy'),
-            progress: Math.floor(Math.random() * 80) + 20, // Random progress for visuals
-            status: memberStatus.status,
-        };
-    });
-    setStudents(studentData);
-  }, []);
+    // Fetch students relationships and subscriptions in parallel
+    const [studentsRes, subsRes] = await Promise.all([
+      fetch(`/api/trainers/${user.id}/students`),
+      fetch('/api/finance/subscriptions'),
+    ]);
 
-  const handleAddStudent = (newStudent: Omit<Student, 'status'>) => {
-    if (students.some(s => s.id === newStudent.id)) {
-        toast({ title: "Aluno já existe", description: `${newStudent.name} já está na sua lista de alunos.`, variant: "destructive" });
-        return;
+    const relationships: any[] = studentsRes.ok ? await studentsRes.json() : [];
+    const subscriptions: any[] = subsRes.ok ? await subsRes.json() : [];
+
+    // Build status map: studentId → subscription status
+    const statusMap: Record<string, StudentStatus> = {};
+    for (const sub of subscriptions) {
+      const sid = sub.student?.id;
+      if (!sid) continue;
+      if (sub.status === 'Ativo') statusMap[sid] = 'Ativo';
+      else if (sub.status === 'Atrasado' && statusMap[sid] !== 'Ativo') statusMap[sid] = 'Atrasado';
+      else if (sub.status === 'Pendente' && !statusMap[sid]) statusMap[sid] = 'Pendente';
     }
-    const studentWithStatus: Student = { ...newStudent, status: 'Inativo' };
-    setStudents(prev => [studentWithStatus, ...prev]);
-    setIsAddDialogOpen(false);
-    toast({ title: "Aluno Adicionado!", description: `${newStudent.name} foi adicionado à sua lista. Agora você pode atribuir um treino.` });
+
+    setStudents(relationships.map((r: any) => ({
+      id: r.student.id,
+      name: r.student.name,
+      email: r.student.email,
+      avatar_url: r.student.avatar_url ?? null,
+      status: statusMap[r.student.id] ?? 'Inativo',
+    })));
+    setIsLoading(false);
   };
 
+  useEffect(() => { loadStudents(); }, [user]);
 
-  const handleDeleteStudent = (studentId: string) => {
+  const handleDeleteStudent = async (studentId: string) => {
+    // Optimistic update
     setStudents(prev => prev.filter(s => s.id !== studentId));
     toast({ title: "Aluno Removido", variant: 'destructive' });
   };
 
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col gap-6">
       <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
         <h1 className="text-3xl font-bold tracking-tight">Gerenciar Alunos</h1>
         <div className="flex items-center gap-2">
-            <div className="flex items-center rounded-md bg-muted p-1">
-                <Button variant={view === 'list' ? 'secondary' : 'ghost'} size="icon" onClick={() => setView('list')}><List className="h-5 w-5"/></Button>
-                <Button variant={view === 'grid' ? 'secondary' : 'ghost'} size="icon" onClick={() => setView('grid')}><LayoutGrid className="h-5 w-5"/></Button>
-            </div>
-             <AddStudentDialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen} onAddStudent={handleAddStudent} />
+          <div className="flex items-center rounded-md bg-muted p-1">
+            <Button variant={view === 'list' ? 'secondary' : 'ghost'} size="icon" onClick={() => setView('list')}>
+              <List className="h-5 w-5" />
+            </Button>
+            <Button variant={view === 'grid' ? 'secondary' : 'ghost'} size="icon" onClick={() => setView('grid')}>
+              <LayoutGrid className="h-5 w-5" />
+            </Button>
+          </div>
+          <Button className="w-full sm:w-auto" onClick={() => setIsAddDialogOpen(true)}>
+            <PlusCircle className="mr-2 h-4 w-4" />
+            Adicionar Aluno
+          </Button>
         </div>
       </div>
 
-      {view === 'list' ? (
-      <Card>
-        <CardHeader>
-          <CardTitle>Lista de Alunos</CardTitle>
-          <CardDescription>Visualize e gerencie seus alunos.</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Aluno</TableHead>
-                <TableHead className="hidden sm:table-cell">Status</TableHead>
-                <TableHead>Progresso do Treino</TableHead>
-                <TableHead><span className="sr-only">Ações</span></TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {students.map((student) => (
-                <TableRow key={student.id}>
-                  <TableCell>
-                    <div className="flex items-center gap-3">
-                      <Avatar className="h-9 w-9">
-                        <AvatarImage src={student.avatar} alt={student.name} data-ai-hint="person portrait" />
-                        <AvatarFallback>{student.initials}</AvatarFallback>
-                      </Avatar>
-                      <div className="grid gap-0.5">
-                        <p className="font-medium">{student.name}</p>
-                        <p className="text-xs text-muted-foreground">{student.email}</p>
+      <AddStudentDialog
+        open={isAddDialogOpen}
+        onOpenChange={setIsAddDialogOpen}
+        trainerId={user?.id ?? ''}
+        onAdded={loadStudents}
+      />
+
+      {students.length === 0 ? (
+        <Card>
+          <CardContent className="pt-6 text-center text-muted-foreground">
+            <p>Nenhum aluno vinculado ainda.</p>
+            <p className="text-sm mt-1">Use o botão "Adicionar Aluno" para vincular alunos à sua conta.</p>
+          </CardContent>
+        </Card>
+      ) : view === 'list' ? (
+        <Card>
+          <CardHeader>
+            <CardTitle>Lista de Alunos</CardTitle>
+            <CardDescription>Visualize e gerencie seus alunos ({students.length} alunos).</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Aluno</TableHead>
+                  <TableHead className="hidden sm:table-cell">Status</TableHead>
+                  <TableHead><span className="sr-only">Ações</span></TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {students.map(student => (
+                  <TableRow key={student.id}>
+                    <TableCell>
+                      <div className="flex items-center gap-3">
+                        <Avatar className="h-9 w-9">
+                          <AvatarImage src={student.avatar_url ?? undefined} alt={student.name} />
+                          <AvatarFallback>{initials(student.name)}</AvatarFallback>
+                        </Avatar>
+                        <div className="grid gap-0.5">
+                          <p className="font-medium">{student.name}</p>
+                          <p className="text-xs text-muted-foreground">{student.email}</p>
+                        </div>
                       </div>
-                    </div>
-                  </TableCell>
-                  <TableCell className="hidden sm:table-cell">
-                     <Badge variant={statusVariant[student.status]}>
-                        {student.status}
-                      </Badge>
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex items-center gap-3">
-                      <Progress value={student.progress} className="h-2 w-16 sm:w-[100px]" />
-                      <span className="text-sm text-muted-foreground">{student.progress}%</span>
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button aria-haspopup="true" size="icon" variant="ghost"><MoreHorizontal className="h-4 w-4" /></Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        <DropdownMenuLabel>Ações</DropdownMenuLabel>
-                        <DropdownMenuItem asChild><Link href={`/dashboard/workouts`}>Atribuir Treino</Link></DropdownMenuItem>
-                        <DropdownMenuItem asChild><Link href={`/dashboard/students/${student.id}/progress`}>Ver Progresso</Link></DropdownMenuItem>
-                         <DropdownMenuSeparator />
-                        <AlertDialog>
+                    </TableCell>
+                    <TableCell className="hidden sm:table-cell">
+                      <Badge variant={statusVariant[student.status]}>{student.status}</Badge>
+                    </TableCell>
+                    <TableCell>
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button aria-haspopup="true" size="icon" variant="ghost">
+                            <MoreHorizontal className="h-4 w-4" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          <DropdownMenuLabel>Ações</DropdownMenuLabel>
+                          <DropdownMenuItem asChild>
+                            <Link href="/dashboard/workouts">Atribuir Treino</Link>
+                          </DropdownMenuItem>
+                          <DropdownMenuItem asChild>
+                            <Link href={`/dashboard/students/${student.id}/progress`}>Ver Progresso</Link>
+                          </DropdownMenuItem>
+                          <DropdownMenuSeparator />
+                          <AlertDialog>
                             <AlertDialogTrigger asChild>
-                                <DropdownMenuItem onSelect={(e) => e.preventDefault()} className="text-destructive">Remover Aluno</DropdownMenuItem>
+                              <DropdownMenuItem onSelect={e => e.preventDefault()} className="text-destructive">
+                                Remover Aluno
+                              </DropdownMenuItem>
                             </AlertDialogTrigger>
                             <AlertDialogContent>
-                                <AlertDialogHeader>
-                                    <AlertDialogTitle>Você tem certeza?</AlertDialogTitle>
-                                    <AlertDialogDescription>Isso removerá permanentemente {student.name}. Esta ação não pode ser desfeita.</AlertDialogDescription>
-                                </AlertDialogHeader>
-                                <AlertDialogFooter>
-                                    <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                                    <AlertDialogAction onClick={() => handleDeleteStudent(student.id)}>Confirmar</AlertDialogAction>
-                                </AlertDialogFooter>
+                              <AlertDialogHeader>
+                                <AlertDialogTitle>Você tem certeza?</AlertDialogTitle>
+                                <AlertDialogDescription>
+                                  Isso removerá {student.name} da sua lista de alunos.
+                                </AlertDialogDescription>
+                              </AlertDialogHeader>
+                              <AlertDialogFooter>
+                                <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                                <AlertDialogAction onClick={() => handleDeleteStudent(student.id)}>
+                                  Confirmar
+                                </AlertDialogAction>
+                              </AlertDialogFooter>
                             </AlertDialogContent>
-                        </AlertDialog>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </CardContent>
-      </Card>
+                          </AlertDialog>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </CardContent>
+        </Card>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-            {students.map(student => (
-                <Card key={student.id}>
-                    <CardHeader className="items-center text-center">
-                        <Avatar className="h-20 w-20 mb-2">
-                            <AvatarImage src={student.avatar} alt={student.name} data-ai-hint="person portrait" />
-                            <AvatarFallback>{student.initials}</AvatarFallback>
-                        </Avatar>
-                        <CardTitle>{student.name}</CardTitle>
-                        <CardDescription>Ativo desde: {student.lastActive}</CardDescription>
-                    </CardHeader>
-                    <CardContent className="flex flex-col items-center">
-                        <div className="w-full px-4 text-center space-y-2">
-                           <Badge variant={statusVariant[student.status]}>
-                             {student.status}
-                           </Badge>
-                          <Progress value={student.progress} className="h-2" />
-                          <p className="text-sm text-muted-foreground">{student.progress}% de progresso</p>
-                        </div>
-                        <Button variant="link" size="sm" asChild className="mt-2"><Link href={`/dashboard/students/${student.id}/progress`}>Ver Detalhes</Link></Button>
-                    </CardContent>
-                </Card>
-            ))}
+          {students.map(student => (
+            <Card key={student.id}>
+              <CardHeader className="items-center text-center">
+                <Avatar className="h-20 w-20 mb-2">
+                  <AvatarImage src={student.avatar_url ?? undefined} alt={student.name} />
+                  <AvatarFallback>{initials(student.name)}</AvatarFallback>
+                </Avatar>
+                <CardTitle>{student.name}</CardTitle>
+                <CardDescription>{student.email}</CardDescription>
+              </CardHeader>
+              <CardContent className="flex flex-col items-center gap-2">
+                <Badge variant={statusVariant[student.status]}>{student.status}</Badge>
+                <Button variant="link" size="sm" asChild>
+                  <Link href={`/dashboard/students/${student.id}/progress`}>Ver Detalhes</Link>
+                </Button>
+              </CardContent>
+            </Card>
+          ))}
         </div>
       )}
     </div>

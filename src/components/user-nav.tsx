@@ -1,7 +1,7 @@
-
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useTheme } from "next-themes";
 import {
   Avatar,
@@ -16,20 +16,17 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-  DropdownMenuSub,
-  DropdownMenuPortal,
-  DropdownMenuSubContent,
-  DropdownMenuRadioGroup,
-  DropdownMenuRadioItem,
-  DropdownMenuSubTrigger,
 } from "@/components/ui/dropdown-menu";
-import { useUserRole, UserRole } from "@/contexts/user-role-context";
-import { User, LogOut, SwatchBook, Palette } from "lucide-react";
+import { useUserRole } from "@/contexts/user-role-context";
+import { User, LogOut, Palette } from "lucide-react";
 import { Button } from "./ui/button";
 
 export function UserNav() {
-  const { user, userRole, setUserRole } = useUserRole();
+  const { user } = useUserRole();
   const { setTheme, theme } = useTheme();
+  const router = useRouter();
+
+  if (!user) return null;
 
   const getInitials = (name: string) => {
     const names = name.split(" ");
@@ -39,16 +36,22 @@ export function UserNav() {
     return `${firstInitial}${lastInitial}`.toUpperCase();
   };
 
-  const handleRoleChange = (role: string) => {
-    setUserRole(role as UserRole);
+  const handleLogout = async () => {
+    await fetch("/api/auth/logout", { method: "POST" });
+    router.push("/login");
+    router.refresh();
   };
-  
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" className="relative h-9 w-9 rounded-full">
           <Avatar className="h-9 w-9">
-            <AvatarImage src={`https://placehold.co/100x100.png`} alt={`@${user.name}`} data-ai-hint="person portrait"/>
+            <AvatarImage
+              src={user.avatar_url ?? `https://placehold.co/100x100.png`}
+              alt={`@${user.name}`}
+              data-ai-hint="person portrait"
+            />
             <AvatarFallback>{getInitials(user.name)}</AvatarFallback>
           </Avatar>
         </Button>
@@ -65,38 +68,22 @@ export function UserNav() {
         <DropdownMenuSeparator />
         <DropdownMenuGroup>
           <DropdownMenuItem asChild>
-             <Link href="/dashboard/settings">
-                <User className="mr-2 h-4 w-4" />
-                <span>Perfil</span>
-             </Link>
+            <Link href="/dashboard/settings">
+              <User className="mr-2 h-4 w-4" />
+              <span>Perfil</span>
+            </Link>
           </DropdownMenuItem>
           <DropdownMenuItem asChild>
-             <Link href="/dashboard/appearance">
-                <Palette className="mr-2 h-4 w-4" />
-                <span>Aparência</span>
-             </Link>
+            <Link href="/dashboard/appearance">
+              <Palette className="mr-2 h-4 w-4" />
+              <span>Aparência</span>
+            </Link>
           </DropdownMenuItem>
-           <DropdownMenuSub>
-            <DropdownMenuSubTrigger>
-                <SwatchBook className="mr-2 h-4 w-4" />
-                <span>Mudar Perfil</span>
-            </DropdownMenuSubTrigger>
-            <DropdownMenuPortal>
-              <DropdownMenuSubContent>
-                <DropdownMenuRadioGroup value={userRole} onValueChange={handleRoleChange}>
-                  <DropdownMenuRadioItem value="Student">Aluno</DropdownMenuRadioItem>
-                  <DropdownMenuRadioItem value="Trainer">Personal</DropdownMenuRadioItem>
-                </DropdownMenuRadioGroup>
-              </DropdownMenuSubContent>
-            </DropdownMenuPortal>
-          </DropdownMenuSub>
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
-        <DropdownMenuItem asChild>
-          <Link href="/">
-            <LogOut className="mr-2 h-4 w-4" />
-            <span>Sair</span>
-          </Link>
+        <DropdownMenuItem onClick={handleLogout} className="cursor-pointer">
+          <LogOut className="mr-2 h-4 w-4" />
+          <span>Sair</span>
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

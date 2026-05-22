@@ -1,101 +1,127 @@
-
 "use client";
 
-import { createContext, useState, ReactNode } from 'react';
-import { allUsers } from '@/lib/user-directory';
+import { createContext, useState, useEffect, useCallback, ReactNode } from 'react';
+import { useUserRole } from '@/contexts/user-role-context';
 
 export type TaskStatus = 'todo' | 'in_progress' | 'done';
 
 export type TaskAssignee = {
-    id: string;
-    name: string;
-    avatar: string;
+  id: string;
+  name: string;
+  avatar: string;
 };
 
 export type Task = {
-    id: string;
-    title: string;
-    description?: string;
-    status: TaskStatus;
-    dueDate?: string; // yyyy-MM-dd
-    assignee: TaskAssignee;
+  id: string;
+  title: string;
+  description?: string;
+  status: TaskStatus;
+  dueDate?: string;
+  assignee: TaskAssignee;
 };
 
 type TasksState = Record<TaskStatus, Task[]>;
 
-const findUser = (id: string, nameOnError: string = 'Desconhecido') => {
-    const user = allUsers.find(u => u.id === id);
-    return {
-        id: user?.id || 'unknown',
-        name: user?.name || nameOnError,
-        avatar: `https://placehold.co/100x100.png`
-    }
+function apiTaskToTask(t: any): Task {
+  return {
+    id: t.id,
+    title: t.title,
+    description: t.description,
+    status: t.status as TaskStatus,
+    dueDate: t.due_date ?? undefined,
+    assignee: {
+      id: t.assignee?.id ?? '',
+      name: t.assignee?.name ?? 'Desconhecido',
+      avatar: t.assignee?.avatar_url ?? 'https://placehold.co/100x100.png',
+    },
+  };
 }
 
-const initialTasks: TasksState = {
-    todo: [
-        { id: 'task-1', title: 'Revisar plano de treino de Maria Garcia', description: 'Verificar se os pesos estão adequados.', status: 'todo', dueDate: '2024-08-15', assignee: findUser('trn-1', 'John Carter') },
-        { id: 'task-3', title: 'Medir progresso mensal', description: 'Tirar fotos e atualizar planilha de medidas.', status: 'todo', assignee: findUser('stu-001', 'Alice Johnson') }
-    ],
-    in_progress: [
-        { id: 'task-4', title: 'Preparar seminário de nutrição', description: 'Montar a apresentação de slides.', status: 'in_progress', dueDate: '2024-08-10', assignee: findUser('trn-2', 'Sophie Brown') }
-    ],
-    done: [
-        { id: 'task-6', title: 'Confirmar participação na aula de spinning', status: 'done', assignee: findUser('alex-johnson', 'Alex Johnson') }
-    ]
-};
+function groupByStatus(tasks: Task[]): TasksState {
+  return {
+    todo: tasks.filter(t => t.status === 'todo'),
+    in_progress: tasks.filter(t => t.status === 'in_progress'),
+    done: tasks.filter(t => t.status === 'done'),
+  };
+}
 
 interface TasksContextType {
-    tasks: TasksState;
-    addTask: (newTaskData: Omit<Task, 'id' | 'status'>) => void;
-    moveTask: (taskId: string, newStatus: TaskStatus) => void;
+  tasks: TasksState;
+  isLoading: boolean;
+  addTask: (newTaskData: Omit<Task, 'id' | 'status'>) => Promise<void>;
+  moveTask: (taskId: string, newStatus: TaskStatus) => Promise<void>;
 }
 
 export const TasksContext = createContext<TasksContextType>({
-    tasks: { todo: [], in_progress: [], done: [] },
-    addTask: () => {},
-    moveTask: () => {}
+  tasks: { todo: [], in_progress: [], done: [] },
+  isLoading: false,
+  addTask: async () => {},
+  moveTask: async () => {},
 });
 
 export const TasksProvider = ({ children }: { children: ReactNode }) => {
-    const [tasks, setTasks] = useState<TasksState>(initialTasks);
+  const { user } = useUserRole();
+  const [tasks, setTasks] = useState<TasksState>({ todo: [], in_progress: [], done: [] });
+  const [isLoading, setIsLoading] = useState(true);
 
-    const addTask = (newTaskData: Omit<Task, 'id' | 'status'>) => {
-        const newTask: Task = {
-            ...newTaskData,
-            id: `task-${Date.now()}`,
-            status: 'todo'
-        };
-        setTasks(prev => ({
-            ...prev,
-            todo: [newTask, ...prev.todo]
-        }));
-    };
+  const fetchTasks = useCallback(async () => {
+    setIsLoading(true);
+    try {
+      const res = await fetch('/api/tasks');
+      const data: any[] = res.ok ? await res.json() : [];
+      setTasks(groupByStatus(data.map(apiTaskToTask)));
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
 
-    const moveTask = (taskId: string, newStatus: TaskStatus) => {
-        setTasks(prev => {
-            const allTasks: Task[] = Object.values(prev).flat();
-            const taskToMove = allTasks.find(t => t.id === taskId);
+  useEffect(() => {
+    if (user) fetchTasks();
+  }, [user, fetchTasks]);
 
-            if (!taskToMove) return prev;
+  const addTask = async (newTaskData: Omit<Task, 'id' | 'status'>) => {
+    const res = await fetch('/api/tasks', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        title: newTaskData.title,
+        description: newTaskData.description,
+        assigned_to: newTaskData.assignee.id,
+        due_date: newTaskData.dueDate,
+      }),
+    });
+    if (res.ok) {
+      const created: any = await res.json();
+      const task = apiTaskToTask(created);
+      setTasks(prev => ({ ...prev, todo: [task, ...prev.todo] }));
+    }
+  };
 
-            const sourceStatus = taskToMove.status;
-            taskToMove.status = newStatus;
+  const moveTask = async (taskId: string, newStatus: TaskStatus) => {
+    // Optimistic update
+    setTasks(prev => {
+      const all: Task[] = Object.values(prev).flat();
+      const task = all.find(t => t.id === taskId);
+      if (!task) return prev;
+      const fromStatus = task.status;
+      const updated = { ...task, status: newStatus };
+      return {
+        ...prev,
+        [fromStatus]: prev[fromStatus].filter(t => t.id !== taskId),
+        [newStatus]: [updated, ...prev[newStatus]],
+      };
+    });
 
-            const newTasksState = { ...prev };
-            
-            // Remove from old column
-            newTasksState[sourceStatus] = newTasksState[sourceStatus].filter(t => t.id !== taskId);
-            // Add to new column
-            newTasksState[newStatus].unshift(taskToMove); // Add to the beginning of the list
+    await fetch(`/api/tasks/${taskId}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ status: newStatus }),
+    });
+  };
 
-            return newTasksState;
-        });
-    };
-
-    return (
-        <TasksContext.Provider value={{ tasks, addTask, moveTask }}>
-            {children}
-        </TasksContext.Provider>
-    );
+  return (
+    <TasksContext.Provider value={{ tasks, isLoading, addTask, moveTask }}>
+      {children}
+    </TasksContext.Provider>
+  );
 };
