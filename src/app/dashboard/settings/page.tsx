@@ -10,7 +10,7 @@ export default function SettingsPage() {
 
     return (
         <div className="flex flex-col gap-6">
-            <h1 className="text-3xl font-bold tracking-tight">Configurações do Perfil</h1>
+            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">Configurações do Perfil</h1>
             <UserProfileSettings user={user} role={userRole} />
         </div>
     );

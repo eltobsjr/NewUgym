@@ -68,7 +68,7 @@ export default function CalendarPage() {
   return (
     <div className="flex flex-col gap-6">
       <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-        <h1 className="text-3xl font-bold tracking-tight">Calendário de Eventos</h1>
+        <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">Calendário de Eventos</h1>
         <Dialog open={isAddModalOpen} onOpenChange={setAddModalOpen}>
             <DialogTrigger asChild>
                 <Button className="w-full sm:w-auto">
@@ -86,7 +86,7 @@ export default function CalendarPage() {
                         <Label htmlFor="event-title">Título do Evento</Label>
                         <Input id="event-title" name="event-title" placeholder="Ex: Aula de Yoga" required />
                     </div>
-                     <div className="grid grid-cols-2 gap-4">
+                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div className="space-y-2">
                             <Label htmlFor="event-date">Data</Label>
                             <Input id="event-date" name="event-date" type="date" required />

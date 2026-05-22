@@ -98,7 +98,7 @@ export default function BillingPage() {
   if (!subscription) {
     return (
       <div className="flex flex-col gap-6">
-        <h1 className="text-3xl font-bold tracking-tight">Minha Mensalidade</h1>
+        <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">Minha Mensalidade</h1>
         <Card>
           <CardContent className="pt-6 text-center text-muted-foreground">
             <p>Você não possui uma assinatura ativa no momento.</p>
@@ -114,7 +114,7 @@ export default function BillingPage() {
 
   return (
     <div className="flex flex-col gap-6">
-      <h1 className="text-3xl font-bold tracking-tight">Minha Mensalidade</h1>
+      <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">Minha Mensalidade</h1>
 
       <Card>
         <CardHeader>
@@ -179,11 +179,12 @@ export default function BillingPage() {
           {transactions.length === 0 ? (
             <p className="text-sm text-muted-foreground text-center py-6">Nenhuma transação encontrada.</p>
           ) : (
+            <div className="overflow-x-auto">
             <Table>
               <TableHeader>
                 <TableRow>
                   <TableHead>Vencimento</TableHead>
-                  <TableHead>Descrição</TableHead>
+                  <TableHead className="hidden sm:table-cell">Descrição</TableHead>
                   <TableHead>Status</TableHead>
                   <TableHead className="text-right">Valor</TableHead>
                 </TableRow>
@@ -192,7 +193,7 @@ export default function BillingPage() {
                 {transactions.map(t => (
                   <TableRow key={t.id}>
                     <TableCell>{t.due_date ? format(parseISO(t.due_date), 'dd/MM/yyyy') : '—'}</TableCell>
-                    <TableCell>{t.type} — {t.subscription?.plan.name ?? '—'}</TableCell>
+                    <TableCell className="hidden sm:table-cell">{t.type} — {t.subscription?.plan.name ?? '—'}</TableCell>
                     <TableCell>
                       <Badge variant={t.status === 'Pago' ? 'default' : t.status === 'Pendente' ? 'secondary' : 'destructive'}>
                         {t.status}
@@ -203,6 +204,7 @@ export default function BillingPage() {
                 ))}
               </TableBody>
             </Table>
+            </div>
           )}
         </CardContent>
       </Card>

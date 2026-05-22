@@ -205,7 +205,7 @@ export default function StudentsPage() {
   return (
     <div className="flex flex-col gap-6">
       <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-        <h1 className="text-3xl font-bold tracking-tight">Gerenciar Alunos</h1>
+        <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">Gerenciar Alunos</h1>
         <div className="flex items-center gap-2">
           <div className="flex items-center rounded-md bg-muted p-1">
             <Button variant={view === 'list' ? 'secondary' : 'ghost'} size="icon" onClick={() => setView('list')}>

@@ -284,7 +284,7 @@ const AddTransactionDialog = ({
               </SelectContent>
             </Select>
           </div>
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="amount">Valor (R$)</Label>
               <Input id="amount" name="amount" type="number" step="0.01" required value={amount} onChange={e => setAmount(e.target.value)} />
@@ -294,7 +294,7 @@ const AddTransactionDialog = ({
               <Input id="date" name="date" type="date" defaultValue={new Date().toISOString().split('T')[0]} required />
             </div>
           </div>
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="status">Status</Label>
               <Select name="status" required defaultValue="Pago">
@@ -455,7 +455,7 @@ export default function FinancePage() {
     <div className="flex flex-col gap-6">
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Financeiro</h1>
+          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">Financeiro</h1>
           <p className="text-muted-foreground">Visão geral financeira.</p>
         </div>
         <div className="flex w-full sm:w-auto gap-2">
@@ -479,11 +479,11 @@ export default function FinancePage() {
         <div className="flex items-center gap-2 flex-wrap">
           <Label>Período:</Label>
           <Tabs defaultValue="all-time" onValueChange={setDateFilter}>
-            <TabsList>
-              <TabsTrigger value="last-30-days">Últimos 30 Dias</TabsTrigger>
-              <TabsTrigger value="this-month">Este Mês</TabsTrigger>
-              <TabsTrigger value="this-year">Este Ano</TabsTrigger>
-              <TabsTrigger value="all-time">Todo o Período</TabsTrigger>
+            <TabsList className="flex overflow-x-auto">
+              <TabsTrigger value="last-30-days" className="shrink-0">Últimos 30 Dias</TabsTrigger>
+              <TabsTrigger value="this-month" className="shrink-0">Este Mês</TabsTrigger>
+              <TabsTrigger value="this-year" className="shrink-0">Este Ano</TabsTrigger>
+              <TabsTrigger value="all-time" className="shrink-0">Todo o Período</TabsTrigger>
             </TabsList>
           </Tabs>
         </div>
@@ -549,12 +549,12 @@ export default function FinancePage() {
                 </CardDescription>
               </div>
               <Tabs defaultValue="all" onValueChange={setTableFilter}>
-                <TabsList className="grid grid-cols-5">
-                  <TabsTrigger value="all">Todos</TabsTrigger>
-                  <TabsTrigger value="paid">Pago</TabsTrigger>
-                  <TabsTrigger value="pending">Pendente</TabsTrigger>
-                  <TabsTrigger value="overdue">Atrasado</TabsTrigger>
-                  <TabsTrigger value="cancelled">Cancelado</TabsTrigger>
+                <TabsList className="flex overflow-x-auto">
+                  <TabsTrigger value="all" className="shrink-0">Todos</TabsTrigger>
+                  <TabsTrigger value="paid" className="shrink-0">Pago</TabsTrigger>
+                  <TabsTrigger value="pending" className="shrink-0">Pendente</TabsTrigger>
+                  <TabsTrigger value="overdue" className="shrink-0">Atrasado</TabsTrigger>
+                  <TabsTrigger value="cancelled" className="shrink-0">Cancelado</TabsTrigger>
                 </TabsList>
               </Tabs>
             </div>
@@ -567,12 +567,13 @@ export default function FinancePage() {
                 <p className="text-xs text-muted-foreground mt-1">Adicione alunos e crie transações para começar.</p>
               </div>
             ) : (
+              <div className="overflow-x-auto">
               <Table>
                 <TableHeader>
                   <TableRow>
                     <TableHead>Aluno</TableHead>
                     <TableHead className="hidden sm:table-cell">Vencimento</TableHead>
-                    <TableHead>Tipo</TableHead>
+                    <TableHead className="hidden md:table-cell">Tipo</TableHead>
                     <TableHead>Status</TableHead>
                     <TableHead className="text-right">Valor</TableHead>
                     <TableHead><span className="sr-only">Ações</span></TableHead>
@@ -585,7 +586,7 @@ export default function FinancePage() {
                       <TableCell className="hidden sm:table-cell">
                         {t.date ? format(parseISO(t.date), 'dd/MM/yyyy') : '—'}
                       </TableCell>
-                      <TableCell>
+                      <TableCell className="hidden md:table-cell">
                         <Badge
                           variant={t.type === 'Primeiro Pagamento' ? 'default' : 'secondary'}
                           className={cn(t.type === 'Primeiro Pagamento' && 'bg-blue-500/10 text-blue-400 border-blue-500/20')}
@@ -654,6 +655,7 @@ export default function FinancePage() {
                   ))}
                 </TableBody>
               </Table>
+              </div>
             )}
           </CardContent>
         </Card>

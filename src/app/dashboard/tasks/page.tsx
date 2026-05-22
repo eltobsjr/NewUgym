@@ -95,7 +95,7 @@ const AddTaskDialog = () => {
                         <Label htmlFor="description">Descrição</Label>
                         <Textarea id="description" name="description" placeholder="Adicione mais detalhes sobre a tarefa..."/>
                     </div>
-                    <div className="grid grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                          <div className="space-y-2">
                             <Label>Data de Entrega</Label>
                              <Popover>
@@ -202,7 +202,7 @@ export default function TasksPage() {
     return (
         <div className="flex flex-col gap-6 h-full">
             <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-                <h1 className="text-3xl font-bold tracking-tight">Gerenciador de Tarefas</h1>
+                <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">Gerenciador de Tarefas</h1>
                 <AddTaskDialog />
             </div>
 
@@ -219,7 +219,7 @@ export default function TasksPage() {
                                         <div
                                             ref={provided.innerRef}
                                             {...provided.droppableProps}
-                                            className={cn("min-h-[400px] transition-colors", snapshot.isDraggingOver && 'bg-accent/50')}
+                                            className={cn("min-h-[200px] sm:min-h-[400px] transition-colors", snapshot.isDraggingOver && 'bg-accent/50')}
                                         >
                                             {tasks[status].map((task, index) => (
                                                 <TaskCard key={task.id} task={task} index={index} />

@@ -123,7 +123,7 @@ function StudentDashboard() {
         ))}
       </div>
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
-        <Card className="col-span-4">
+        <Card className="md:col-span-2 lg:col-span-4">
           <CardHeader>
             <CardTitle>Duração dos Treinos</CardTitle>
             <CardDescription>Minutos de treino nos últimos 7 dias.</CardDescription>
@@ -141,7 +141,7 @@ function StudentDashboard() {
             )}
           </CardContent>
         </Card>
-        <Card className="col-span-4 lg:col-span-3">
+        <Card className="md:col-span-2 lg:col-span-3">
           <CardHeader>
             <CardTitle>Treinos Recentes</CardTitle>
             <CardDescription>Suas últimas sessões concluídas.</CardDescription>
@@ -230,7 +230,7 @@ function TrainerDashboard() {
         ))}
       </div>
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
-        <Card className="col-span-4">
+        <Card className="md:col-span-2 lg:col-span-4">
           <CardHeader>
             <CardTitle>Meus Alunos</CardTitle>
             <CardDescription>Alunos vinculados à sua conta.</CardDescription>
@@ -273,7 +273,7 @@ function TrainerDashboard() {
             )}
           </CardContent>
         </Card>
-        <Card className="col-span-4 lg:col-span-3">
+        <Card className="md:col-span-2 lg:col-span-3">
           <CardHeader>
             <CardTitle>Tarefas Pendentes</CardTitle>
             <CardDescription>Tarefas ainda não concluídas.</CardDescription>
@@ -340,7 +340,7 @@ export default function DashboardPage() {
   return (
     <div className="flex flex-col gap-6">
       <WelcomeAlert />
-      <h1 className="text-3xl font-bold tracking-tight">
+      <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">
         Dashboard do {userRole === 'Student' ? 'Aluno' : 'Personal'}
       </h1>
       {userRole === 'Trainer' ? <TrainerDashboard /> : <StudentDashboard />}

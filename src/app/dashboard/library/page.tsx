@@ -41,7 +41,7 @@ export default function ExerciseLibraryPage() {
   return (
     <div className="flex flex-col gap-6">
       <div className="flex flex-col gap-2">
-        <h1 className="text-3xl font-bold tracking-tight">Biblioteca de Exercícios com IA</h1>
+        <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">Biblioteca de Exercícios com IA</h1>
         <p className="text-muted-foreground">
           Digite o nome de um exercício para obter uma descrição detalhada, músculos trabalhados e dicas de execução.
         </p>

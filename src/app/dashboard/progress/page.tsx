@@ -188,7 +188,7 @@ export default function ProgressPage() {
   return (
     <div className="flex flex-col gap-6">
       <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-        <h1 className="text-3xl font-bold tracking-tight">Meu Progresso</h1>
+        <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">Meu Progresso</h1>
         <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
           <DialogTrigger asChild>
             <Button className="w-full sm:w-auto">
@@ -201,7 +201,7 @@ export default function ProgressPage() {
               <DialogTitle>Adicionar Nova Medição</DialogTitle>
               <DialogDescription>Preencha suas métricas mais recentes.</DialogDescription>
             </DialogHeader>
-            <form onSubmit={handleAddMetric} className="grid grid-cols-2 gap-4">
+            <form onSubmit={handleAddMetric} className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="date">Data</Label>
                 <Input id="date" name="date" type="date" required defaultValue={new Date().toISOString().split('T')[0]} />
@@ -299,7 +299,7 @@ export default function ProgressPage() {
                   <CardTitle>Evolução das Métricas</CardTitle>
                   <CardDescription>Acompanhe seu progresso ao longo do tempo.</CardDescription>
                 </div>
-                <div className="flex gap-2">
+                <div className="flex flex-col sm:flex-row gap-2">
                   <Select value={selectedMetric} onValueChange={setSelectedMetric}>
                     <SelectTrigger className="w-full sm:w-[180px]">
                       <SelectValue placeholder="Selecionar Métrica" />
@@ -336,6 +336,7 @@ export default function ProgressPage() {
               <CardDescription>Todos os registros de suas medições.</CardDescription>
             </CardHeader>
             <CardContent>
+              <div className="overflow-x-auto">
               <Table>
                 <TableHeader>
                   <TableRow>
@@ -364,6 +365,7 @@ export default function ProgressPage() {
                   ))}
                 </TableBody>
               </Table>
+              </div>
             </CardContent>
           </Card>
         </>

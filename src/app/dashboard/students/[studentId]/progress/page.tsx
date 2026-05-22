@@ -257,7 +257,7 @@ export default function StudentProgressPage({ params: paramsPromise }: { params:
   return (
     <div className="flex flex-col gap-6">
       <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-        <h1 className="text-3xl font-bold tracking-tight">Progresso de {name}</h1>
+        <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">Progresso de {name}</h1>
         <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
           <DialogTrigger asChild>
             <Button className="w-full sm:w-auto">

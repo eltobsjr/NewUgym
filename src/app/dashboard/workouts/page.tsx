@@ -106,7 +106,7 @@ const AddExerciseModal = ({ open, onOpenChange, onAddExercises }: { open: boolea
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent className="max-w-3xl">
+            <DialogContent className="w-full max-w-3xl">
                 <DialogHeader>
                     <DialogTitle>Adicionar Exercício ao Dia</DialogTitle>
                 </DialogHeader>
@@ -116,18 +116,18 @@ const AddExerciseModal = ({ open, onOpenChange, onAddExercises }: { open: boolea
                         <TabsTrigger value="scratch"><PencilRuler className="mr-2" /> Criar do Zero</TabsTrigger>
                     </TabsList>
                     <TabsContent value="library">
-                        <div className="flex border-t pt-4">
-                            <aside className="w-1/4 pr-4 border-r">
+                        <div className="flex flex-col sm:flex-row border-t pt-4">
+                            <aside className="w-full sm:w-1/4 sm:pr-4 sm:border-r pb-3 sm:pb-0 border-b sm:border-b-0 mb-3 sm:mb-0">
                                 <h4 className="font-semibold mb-2">Categorias</h4>
-                                <div className="flex flex-col items-start gap-1">
+                                <div className="flex flex-row flex-wrap sm:flex-col items-start gap-1">
                                     <Button variant={selectedCategory === 'Todos' ? 'secondary' : 'ghost'} size="sm" onClick={() => setSelectedCategory('Todos')} className="w-full justify-start">Todos</Button>
                                     {exerciseCategories.map(cat => (
                                          <Button key={cat} variant={selectedCategory === cat ? 'secondary' : 'ghost'} size="sm" onClick={() => setSelectedCategory(cat)} className="w-full justify-start">{cat}</Button>
                                     ))}
                                 </div>
                             </aside>
-                            <main className="w-3/4 pl-4">
-                                <ScrollArea className="h-96">
+                            <main className="w-full sm:w-3/4 sm:pl-4">
+                                <ScrollArea className="h-64 sm:h-96">
                                     <div className="space-y-2 pr-4">
                                         {filteredExercises.map(ex => (
                                             <div key={ex.id} className="flex items-center gap-4 p-2 rounded-md border">
@@ -348,17 +348,17 @@ const WorkoutBuilder = ({ onSave, onBack, plan: initialPlan }: { onSave: (plan: 
                                         {activeDay.exercises.map((exercise, index) => (
                                             <Draggable key={exercise.id} draggableId={exercise.id} index={index}>
                                             {(provided) => (
-                                                <div ref={provided.innerRef} {...provided.draggableProps} className="flex items-center gap-2 p-2 border rounded-md bg-muted/50">
+                                                <div ref={provided.innerRef} {...provided.draggableProps} className="flex flex-wrap sm:flex-nowrap items-center gap-2 p-2 border rounded-md bg-muted/50">
                                                     <div {...provided.dragHandleProps} className="p-1 cursor-grab">
                                                         <GripVertical className="h-4 w-4 text-muted-foreground" />
                                                     </div>
                                                     {exercise.mediaUrl && (
                                                         <Image src={exercise.mediaUrl} alt={exercise.name} width={50} height={50} className="rounded-md object-cover" data-ai-hint="exercise fitness"/>
                                                     )}
-                                                    <Input value={exercise.name} onChange={e => updateExercise(exercise.id, 'name', e.target.value)} placeholder="Nome do exercício" className="flex-1" />
-                                                    <Input value={exercise.sets} onChange={e => updateExercise(exercise.id, 'sets', e.target.value)} placeholder="Séries" type="text" className="w-24" />
-                                                    <Input value={exercise.reps} onChange={e => updateExercise(exercise.id, 'reps', e.target.value)} placeholder="Reps" className="w-24" />
-                                                    <Button variant="ghost" size="icon" onClick={() => removeExercise(exercise.id)}><Trash2 className="h-4 w-4 text-destructive" /></Button>
+                                                    <Input value={exercise.name} onChange={e => updateExercise(exercise.id, 'name', e.target.value)} placeholder="Nome do exercício" className="flex-1 min-w-[120px]" />
+                                                    <Input value={exercise.sets} onChange={e => updateExercise(exercise.id, 'sets', e.target.value)} placeholder="Séries" type="text" className="w-20 shrink-0" />
+                                                    <Input value={exercise.reps} onChange={e => updateExercise(exercise.id, 'reps', e.target.value)} placeholder="Reps" className="w-20 shrink-0" />
+                                                    <Button variant="ghost" size="icon" onClick={() => removeExercise(exercise.id)} className="shrink-0"><Trash2 className="h-4 w-4 text-destructive" /></Button>
                                                 </div>
                                             )}
                                             </Draggable>
@@ -556,7 +556,7 @@ const TrainerView = () => {
           />
       )}
       <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-        <h1 className="text-3xl font-bold tracking-tight">Gerenciar Treinos</h1>
+        <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">Gerenciar Treinos</h1>
         <div className="flex gap-2 w-full sm:w-auto">
             <Button variant="outline" onClick={handleAddNewPlan} className="flex-1"><PlusCircle className="mr-2 h-4 w-4" />Criar Plano</Button>
             <Button className="flex-1" disabled title="Funcionalidade temporariamente desativada">
@@ -714,6 +714,7 @@ const ExerciseTrackerModal = ({ open, onOpenChange, planId, dayId, exercise, onU
                     </DialogDescription>
                 </DialogHeader>
                 <div className="py-4 space-y-4">
+                    <div className="overflow-x-auto">
                     <Table>
                         <TableHeader>
                             <TableRow>
@@ -740,7 +741,8 @@ const ExerciseTrackerModal = ({ open, onOpenChange, planId, dayId, exercise, onU
                             ))}
                         </TableBody>
                     </Table>
-                     <div className="space-y-2">
+                    </div>
+                    <div className="space-y-2">
                         <Label htmlFor="notes">Observações</Label>
                         <Textarea id="notes" placeholder="Ex: Senti uma fisgada, aumentei a carga, etc." value={localExercise.notes || ''} onChange={e => handleNotesUpdate(e.target.value)}/>
                     </div>
@@ -869,7 +871,7 @@ const StudentView = () => {
             </Dialog>
 
             <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-                <h1 className="text-3xl font-bold tracking-tight">Meus Treinos</h1>
+                <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">Meus Treinos</h1>
                 <div className="flex gap-2 w-full sm:w-auto">
                     <Button variant="outline" onClick={handleAddNewPlan} className="flex-1"><PlusCircle className="mr-2 h-4 w-4" />Criar Plano</Button>
                     <Button className="flex-1" disabled title="Funcionalidade temporariamente desativada"><Sparkles className="mr-2 h-4 w-4" />Criar com IA<Badge variant="secondary" className="ml-2 text-xs">Em breve</Badge></Button>
