@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/card";
 import {
   MoreHorizontal, Download, CheckCircle, AlertTriangle, XCircle, Eye,
-  PlusCircle, TrendingUp, TrendingDown, UserCheck, Loader2,
+  PlusCircle, TrendingUp, TrendingDown, UserCheck, Loader2, ArrowUpDown, ArrowUp, ArrowDown,
 } from "lucide-react";
 import {
   DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel,
@@ -340,6 +340,17 @@ export default function FinancePage() {
   const [dateFilter, setDateFilter] = useState('all-time');
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [prefilledStudentId, setPrefilledStudentId] = useState('');
+  const [sortField, setSortField] = useState<'date' | 'amount' | null>(null);
+  const [sortDir, setSortDir] = useState<'asc' | 'desc'>('desc');
+
+  const handleSort = (field: 'date' | 'amount') => {
+    if (sortField === field) {
+      setSortDir(prev => prev === 'asc' ? 'desc' : 'asc');
+    } else {
+      setSortField(field);
+      setSortDir('desc');
+    }
+  };
   const { toast } = useToast();
   const searchParams = useSearchParams();
   const router = useRouter();
@@ -437,11 +448,20 @@ export default function FinancePage() {
     }
   };
 
-  const transactionsForTable = filteredTransactions.filter(t => {
-    if (tableFilter === 'all') return true;
-    const map: Record<string, TxStatus> = { paid: 'Pago', pending: 'Pendente', overdue: 'Atrasado', cancelled: 'Cancelado' };
-    return t.status === map[tableFilter];
-  });
+  const transactionsForTable = useMemo(() => {
+    const filtered = filteredTransactions.filter(t => {
+      if (tableFilter === 'all') return true;
+      const map: Record<string, TxStatus> = { paid: 'Pago', pending: 'Pendente', overdue: 'Atrasado', cancelled: 'Cancelado' };
+      return t.status === map[tableFilter];
+    });
+    if (!sortField) return filtered;
+    return [...filtered].sort((a, b) => {
+      const mult = sortDir === 'asc' ? 1 : -1;
+      if (sortField === 'date') return mult * ((a.date ?? '').localeCompare(b.date ?? ''));
+      if (sortField === 'amount') return mult * (a.amount - b.amount);
+      return 0;
+    });
+  }, [filteredTransactions, tableFilter, sortField, sortDir]);
 
   if (isLoading) {
     return (
@@ -572,10 +592,20 @@ export default function FinancePage() {
                 <TableHeader>
                   <TableRow>
                     <TableHead>Aluno</TableHead>
-                    <TableHead className="hidden sm:table-cell">Vencimento</TableHead>
+                    <TableHead className="hidden sm:table-cell">
+                      <button onClick={() => handleSort('date')} className="flex items-center gap-1 hover:text-foreground transition-colors">
+                        Vencimento
+                        {sortField === 'date' ? (sortDir === 'asc' ? <ArrowUp className="h-3 w-3" /> : <ArrowDown className="h-3 w-3" />) : <ArrowUpDown className="h-3 w-3 opacity-50" />}
+                      </button>
+                    </TableHead>
                     <TableHead className="hidden md:table-cell">Tipo</TableHead>
                     <TableHead>Status</TableHead>
-                    <TableHead className="text-right">Valor</TableHead>
+                    <TableHead className="text-right">
+                      <button onClick={() => handleSort('amount')} className="flex items-center gap-1 hover:text-foreground transition-colors ml-auto">
+                        Valor
+                        {sortField === 'amount' ? (sortDir === 'asc' ? <ArrowUp className="h-3 w-3" /> : <ArrowDown className="h-3 w-3" />) : <ArrowUpDown className="h-3 w-3 opacity-50" />}
+                      </button>
+                    </TableHead>
                     <TableHead><span className="sr-only">Ações</span></TableHead>
                   </TableRow>
                 </TableHeader>

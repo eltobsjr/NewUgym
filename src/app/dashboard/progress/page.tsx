@@ -373,13 +373,13 @@ export default function ProgressPage() {
         <Card>
           <CardContent className="flex flex-col items-center justify-center py-16 text-center">
             <Weight className="h-12 w-12 text-muted-foreground mb-4" />
-            <h3 className="text-lg font-semibold mb-1">Nenhuma medição ainda</h3>
+            <h3 className="text-lg font-semibold mb-1">Sua jornada começa aqui</h3>
             <p className="text-sm text-muted-foreground mb-4">
-              Adicione sua primeira medição para começar a acompanhar seu progresso.
+              Registre suas medidas agora e veja sua evolução ao longo do tempo.
             </p>
             <Button onClick={() => setIsModalOpen(true)}>
               <PlusCircle className="mr-2 h-4 w-4" />
-              Adicionar Medição
+              Adicionar Primeira Medição
             </Button>
           </CardContent>
         </Card>

@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 import { LayoutDashboard, LineChart, Calendar, Settings, Users, DollarSign, ClipboardList, LogOut, Palette, BookOpen, ListChecks as TasksIcon } from "lucide-react";
 import { useUserRole } from "@/contexts/user-role-context";
 import { cn } from "@/lib/utils";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 export const navConfig = {
   student: [
@@ -58,25 +59,39 @@ export function DashboardNav({ isCollapsed, onLinkClick }: { isCollapsed: boolea
   return (
     <div className="flex h-full flex-col">
       <nav className="flex-1 space-y-2 px-2 py-4">
+        <TooltipProvider delayDuration={0}>
         {navItems.map((item) => (
+          <Tooltip key={item.name}>
+            <TooltipTrigger asChild>
           <Link key={item.name} href={item.href} onClick={handleLinkClick}>
             <div className={linkClass(item.href, isCollapsed)}>
               <item.icon className="h-5 w-5 shrink-0" />
               <span className={cn("truncate", isCollapsed ? "hidden" : "block")}>{item.name}</span>
             </div>
           </Link>
+            </TooltipTrigger>
+            {isCollapsed && <TooltipContent side="right"><p>{item.name}</p></TooltipContent>}
+          </Tooltip>
         ))}
+        </TooltipProvider>
       </nav>
       <div className="mt-auto border-t">
         <div className="space-y-1 px-2 py-4">
+          <TooltipProvider delayDuration={0}>
             {bottomNavItems.map((item) => (
+              <Tooltip key={item.name}>
+                <TooltipTrigger asChild>
                  <Link key={item.name} href={item.href} onClick={handleLinkClick}>
                     <div className={linkClass(item.href, isCollapsed)}>
                         <item.icon className="h-5 w-5 shrink-0" />
                         <span className={cn("truncate", isCollapsed ? "hidden" : "block")}>{item.name}</span>
                     </div>
                 </Link>
+                </TooltipTrigger>
+                {isCollapsed && <TooltipContent side="right"><p>{item.name}</p></TooltipContent>}
+              </Tooltip>
             ))}
+          </TooltipProvider>
         </div>
       </div>
     </div>

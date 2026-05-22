@@ -3,9 +3,10 @@
 
 import { useState, useEffect, useContext } from 'react';
 import Image from 'next/image';
+import { useSearchParams } from 'next/navigation';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
-import { CheckCircle2, Circle, Dumbbell, PlusCircle, Sparkles, Trash2, MoreVertical, GripVertical, Save, X, UserPlus, Edit, NotebookText, ArrowLeft, Library, PencilRuler } from "lucide-react";
+import { CheckCircle2, Circle, Dumbbell, PlusCircle, Sparkles, Trash2, MoreVertical, GripVertical, Save, X, UserPlus, Edit, NotebookText, ArrowLeft, Library, PencilRuler, Search } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { cn } from '@/lib/utils';
 import { useUserRole } from '@/contexts/user-role-context';
@@ -60,8 +61,11 @@ const AddExerciseModal = ({ open, onOpenChange, onAddExercises }: { open: boolea
     const [activeTab, setActiveTab] = useState('library');
     const [selectedCategory, setSelectedCategory] = useState('Todos');
     const [selectedExercises, setSelectedExercises] = useState<Set<string>>(new Set());
+    const [exerciseSearch, setExerciseSearch] = useState('');
 
-    const filteredExercises = selectedCategory === 'Todos' ? exerciseLibrary : exerciseLibrary.filter(ex => ex.category === selectedCategory);
+    const filteredExercises = exerciseLibrary
+        .filter(ex => selectedCategory === 'Todos' || ex.category === selectedCategory)
+        .filter(ex => !exerciseSearch || ex.name.toLowerCase().includes(exerciseSearch.toLowerCase()));
 
     const handleSelectExercise = (exerciseId: string, isSelected: boolean) => {
         const newSet = new Set(selectedExercises);
@@ -127,6 +131,15 @@ const AddExerciseModal = ({ open, onOpenChange, onAddExercises }: { open: boolea
                                 </div>
                             </aside>
                             <main className="w-full sm:w-3/4 sm:pl-4">
+                                <div className="relative mb-3">
+                                    <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground pointer-events-none" />
+                                    <Input
+                                        placeholder="Buscar exercício..."
+                                        value={exerciseSearch}
+                                        onChange={e => setExerciseSearch(e.target.value)}
+                                        className="pl-9"
+                                    />
+                                </div>
                                 <ScrollArea className="h-64 sm:h-96">
                                     <div className="space-y-2 pr-4">
                                         {filteredExercises.map(ex => (
@@ -457,6 +470,8 @@ const AssignWorkoutModal = ({ open, onOpenChange, onAssign, planName, students }
 const TrainerView = () => {
     const { toast } = useToast();
     const { plans, addPlan, updatePlan, deletePlan, assignPlanToStudents, getAssignments, students } = useContext(WorkoutsContext);
+    const searchParams = useSearchParams();
+    const [activeTab, setActiveTab] = useState(searchParams.get('tab') === 'assignments' ? 'assignments' : 'templates');
     const [isAiModalOpen, setIsAiModalOpen] = useState(false);
     const [view, setView] = useState<'list' | 'builder'>('list');
     const [isAssignModalOpen, setAssignModalOpen] = useState(false);
@@ -567,7 +582,7 @@ const TrainerView = () => {
         </div>
       </div>
       
-      <Tabs defaultValue="templates">
+      <Tabs value={activeTab} onValueChange={setActiveTab}>
         <TabsList>
             <TabsTrigger value="templates">Meus Planos (Modelos)</TabsTrigger>
             <TabsTrigger value="assignments">Planos de Alunos</TabsTrigger>

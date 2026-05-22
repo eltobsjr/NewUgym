@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/button";
 import {
   Card, CardContent, CardHeader, CardTitle, CardDescription,
 } from "@/components/ui/card";
-import { MoreHorizontal, PlusCircle, List, LayoutGrid, Trash2, Search, Loader2 } from "lucide-react";
+import { MoreHorizontal, PlusCircle, List, LayoutGrid, Trash2, Search, Loader2, Users } from "lucide-react";
 import {
   DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel,
   DropdownMenuTrigger, DropdownMenuSeparator,
@@ -231,9 +231,16 @@ export default function StudentsPage() {
 
       {students.length === 0 ? (
         <Card>
-          <CardContent className="pt-6 text-center text-muted-foreground">
-            <p>Nenhum aluno vinculado ainda.</p>
-            <p className="text-sm mt-1">Use o botão "Adicionar Aluno" para vincular alunos à sua conta.</p>
+          <CardContent className="flex flex-col items-center justify-center py-16 text-center">
+            <Users className="h-12 w-12 text-muted-foreground mb-4" />
+            <h3 className="text-lg font-semibold mb-1">Nenhum aluno ainda</h3>
+            <p className="text-sm text-muted-foreground mb-4">
+              Adicione seus alunos e comece a gerenciar treinos, progresso e pagamentos.
+            </p>
+            <Button onClick={() => setIsAddDialogOpen(true)}>
+              <PlusCircle className="mr-2 h-4 w-4" />
+              Adicionar Primeiro Aluno
+            </Button>
           </CardContent>
         </Card>
       ) : view === 'list' ? (
@@ -279,7 +286,7 @@ export default function StudentsPage() {
                         <DropdownMenuContent align="end">
                           <DropdownMenuLabel>Ações</DropdownMenuLabel>
                           <DropdownMenuItem asChild>
-                            <Link href="/dashboard/workouts">Atribuir Treino</Link>
+                            <Link href={`/dashboard/workouts?tab=assignments`}>Atribuir Treino</Link>
                           </DropdownMenuItem>
                           <DropdownMenuItem asChild>
                             <Link href={`/dashboard/students/${student.id}/progress`}>Ver Progresso</Link>

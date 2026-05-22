@@ -148,9 +148,23 @@ function StudentDashboard() {
           </CardHeader>
           <CardContent>
             {isLoading ? (
-              <div className="space-y-4">{[1, 2, 3].map(i => <Skeleton key={i} className="h-12 w-full" />)}</div>
+              <div className="space-y-4">{[1, 2, 3].map(i => (
+                <div key={i} className="flex items-center gap-4">
+                  <Skeleton className="h-10 w-10 rounded-full shrink-0" />
+                  <div className="flex-1 space-y-2">
+                    <Skeleton className="h-4 w-32" />
+                    <Skeleton className="h-3 w-48" />
+                  </div>
+                </div>
+              ))}</div>
             ) : recentSessions.length === 0 ? (
-              <p className="text-sm text-muted-foreground">Nenhuma sessão concluída ainda.</p>
+              <div className="flex flex-col items-center justify-center py-10 text-center gap-2">
+                <Dumbbell className="h-8 w-8 text-muted-foreground/50" />
+                <p className="text-sm text-muted-foreground">Nenhum treino concluído ainda.</p>
+                <Button variant="link" size="sm" asChild className="h-auto p-0">
+                  <Link href="/dashboard/workouts">Iniciar um treino →</Link>
+                </Button>
+              </div>
             ) : (
               <div className="space-y-4">
                 {recentSessions.map((s, i) => (
@@ -237,12 +251,24 @@ function TrainerDashboard() {
           </CardHeader>
           <CardContent>
             {isLoading ? (
-              <div className="space-y-4">{[1, 2, 3].map(i => <Skeleton key={i} className="h-12 w-full" />)}</div>
+              <div className="space-y-4">{[1, 2, 3].map(i => (
+                <div key={i} className="flex items-center gap-4">
+                  <Skeleton className="h-10 w-10 rounded-full shrink-0" />
+                  <div className="flex-1 space-y-2">
+                    <Skeleton className="h-4 w-28" />
+                    <Skeleton className="h-3 w-44" />
+                  </div>
+                  <Skeleton className="h-8 w-12 rounded-md" />
+                </div>
+              ))}</div>
             ) : students.length === 0 ? (
-              <p className="text-sm text-muted-foreground">
-                Nenhum aluno vinculado.{' '}
-                <Link href="/dashboard/students" className="underline text-primary">Adicionar aluno</Link>.
-              </p>
+              <div className="flex flex-col items-center justify-center py-10 text-center gap-2">
+                <Users className="h-8 w-8 text-muted-foreground/50" />
+                <p className="text-sm text-muted-foreground">Nenhum aluno vinculado ainda.</p>
+                <Button variant="link" size="sm" asChild className="h-auto p-0">
+                  <Link href="/dashboard/students">Adicionar alunos →</Link>
+                </Button>
+              </div>
             ) : (
               <div className="space-y-4">
                 {students.slice(0, 5).map((rel: any) => {

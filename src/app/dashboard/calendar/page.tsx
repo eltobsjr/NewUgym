@@ -79,7 +79,7 @@ export default function CalendarPage() {
             <DialogContent>
                 <DialogHeader>
                     <DialogTitle>Adicionar Novo Evento</DialogTitle>
-                    <DialogDescription>Preencha os detalhes para o novo evento.</DialogDescription>
+                    <DialogDescription>Preencha os detalhes para o novo evento. <span className="text-xs opacity-60">(ESC para fechar)</span></DialogDescription>
                 </DialogHeader>
                 <form onSubmit={handleAddEvent} className="space-y-4">
                     <div className="space-y-2">
@@ -111,7 +111,7 @@ export default function CalendarPage() {
                     </div>
                      <div className="space-y-2">
                         <Label htmlFor="event-description">Descrição</Label>
-                        <Input id="event-description" name="event-description" placeholder="Uma breve descrição do evento."/>
+                        <Input id="event-description" name="event-description" placeholder="Ex: Local, duração, o que trazer..."/>
                     </div>
                     <DialogFooter>
                         <Button type="submit">Adicionar Evento</Button>

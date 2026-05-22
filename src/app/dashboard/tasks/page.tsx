@@ -16,6 +16,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { format, parseISO } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { useToast } from '@/hooks/use-toast';
+import { ToastAction } from '@/components/ui/toast';
 import { TasksContext, Task, TaskStatus } from '@/contexts/tasks-context';
 import { useUserRole } from '@/contexts/user-role-context';
 import { WorkoutsContext } from '@/contexts/workouts-context';
@@ -84,7 +85,7 @@ const AddTaskDialog = () => {
             <DialogContent>
                 <DialogHeader>
                     <DialogTitle>Adicionar Nova Tarefa</DialogTitle>
-                    <DialogDescription>Preencha os detalhes da tarefa.</DialogDescription>
+                    <DialogDescription>Preencha os detalhes da tarefa. <span className="text-xs opacity-60">(ESC para fechar)</span></DialogDescription>
                 </DialogHeader>
                 <form onSubmit={handleSubmit} className="space-y-4">
                     <div className="space-y-2">
@@ -165,7 +166,12 @@ const TaskCard = ({ task, index }: { task: Task, index: number }) => {
                     {task.description && <p className="text-xs text-muted-foreground mt-1">{task.description}</p>}
                     <div className="flex justify-between items-center mt-3">
                         {task.dueDate ? (
-                            <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                            <div className={cn(
+                                "flex items-center gap-1 text-xs",
+                                task.status !== 'done' && parseISO(task.dueDate) < new Date()
+                                    ? "text-destructive font-medium"
+                                    : "text-muted-foreground"
+                            )}>
                                 <CalendarIcon className="h-3 w-3" />
                                 <span>{format(parseISO(task.dueDate), "dd MMM", {locale: ptBR})}</span>
                             </div>
@@ -191,12 +197,25 @@ const TaskCard = ({ task, index }: { task: Task, index: number }) => {
 
 export default function TasksPage() {
     const { tasks, moveTask } = useContext(TasksContext);
+    const { toast } = useToast();
 
     const onDragEnd = (result: DropResult) => {
-        const { destination, draggableId } = result;
+        const { destination, source, draggableId } = result;
         if (!destination) return;
+        if (destination.droppableId === source.droppableId) return;
 
-        moveTask(draggableId, destination.droppableId as TaskStatus);
+        const prevStatus = source.droppableId as TaskStatus;
+        const newStatus = destination.droppableId as TaskStatus;
+
+        moveTask(draggableId, newStatus);
+        toast({
+            title: `Movido para “${columnTitles[newStatus]}”`,
+            action: (
+                <ToastAction altText="Desfazer" onClick={() => moveTask(draggableId, prevStatus)}>
+                    Desfazer
+                </ToastAction>
+            ),
+        });
     };
 
     return (
@@ -221,6 +240,15 @@ export default function TasksPage() {
                                             {...provided.droppableProps}
                                             className={cn("min-h-[200px] sm:min-h-[400px] transition-colors", snapshot.isDraggingOver && 'bg-accent/50')}
                                         >
+                                            {tasks[status].length === 0 && !snapshot.isDraggingOver && (
+                                                <div className="flex flex-col items-center justify-center h-24 text-center">
+                                                    <p className="text-xs text-muted-foreground/60">
+                                                        {status === 'todo' ? 'Nenhuma tarefa aqui ainda.' :
+                                                         status === 'in_progress' ? 'Arraste tarefas para cá.' :
+                                                         'Tarefas concluídas aparecem aqui.'}
+                                                    </p>
+                                                </div>
+                                            )}
                                             {tasks[status].map((task, index) => (
                                                 <TaskCard key={task.id} task={task} index={index} />
                                             ))}
