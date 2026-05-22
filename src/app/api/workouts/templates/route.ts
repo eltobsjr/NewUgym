@@ -6,7 +6,7 @@ import { NextResponse } from 'next/server'
 const createTemplateSchema = z.object({
   name: z.string().min(3),
   description: z.string().optional(),
-  difficulty: z.enum(['Iniciante', 'Intermediário', 'Avançado']).optional(),
+  difficulty: z.string().optional(),
   schedule: z.array(z.object({
     day_name: z.string(),
     focus: z.string(),

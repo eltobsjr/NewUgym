@@ -245,7 +245,7 @@ export const WorkoutsProvider = ({ children }: { children: ReactNode }) => {
         const template = plans.find(p => p.id === planId && !p.owner);
         if (!template) return;
 
-        await Promise.all(studentIds.map(studentId =>
+        const results = await Promise.all(studentIds.map(studentId =>
             fetch('/api/workouts/plans', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -265,13 +265,19 @@ export const WorkoutsProvider = ({ children }: { children: ReactNode }) => {
                                 exercise_id: ex.exerciseId!,
                                 sets: ex.sets,
                                 reps: ex.reps,
-                                notes: ex.notes,
+                                notes: ex.notes || undefined,
                                 order_index: idx,
                             })),
                     })),
                 }),
             })
         ));
+
+        const failed = await Promise.all(results.map(r => r.ok ? null : r.json()));
+        const errors = failed.filter(Boolean);
+        if (errors.length > 0) {
+            console.error('[assignPlanToStudents] Erros ao atribuir:', errors);
+        }
 
         await fetchData();
     };

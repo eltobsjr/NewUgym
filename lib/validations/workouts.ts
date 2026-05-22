@@ -4,7 +4,7 @@ export const createWorkoutPlanSchema = z.object({
   student_id: z.string().uuid(),
   name: z.string().min(3, 'Nome deve ter no mínimo 3 caracteres'),
   description: z.string().optional(),
-  difficulty: z.enum(['Iniciante', 'Intermediário', 'Avançado']).optional(),
+  difficulty: z.string().optional(),
   schedule: z.array(z.object({
     day_name: z.string(),
     focus: z.string(),
