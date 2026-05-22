@@ -33,11 +33,11 @@ const StudentProfileForm = ({ user }: { user: User }) => (
         <div className="grid sm:grid-cols-3 gap-4">
             <div className="space-y-2">
                 <Label htmlFor="height">Altura (cm)</Label>
-                <Input id="height" type="number" placeholder="Ex: 175" defaultValue={user.height} />
+                <Input id="height" type="number" placeholder="Ex: 175" defaultValue={user.height_cm} />
             </div>
             <div className="space-y-2">
                 <Label htmlFor="weight">Peso (kg)</Label>
-                <Input id="weight" type="number" placeholder="Ex: 80" defaultValue={user.weight} />
+                <Input id="weight" type="number" placeholder="Ex: 80" defaultValue={undefined} />
             </div>
              <div className="space-y-2">
                 <Label htmlFor="birthdate">Data de Nascimento</Label>

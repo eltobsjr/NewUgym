@@ -82,7 +82,7 @@ const chartConfig: ChartConfig = {
 
 const ChartComponent = ({ type, data, metric }: { type: keyof typeof chartComponents; data: any[]; metric: string }) => {
   const Chart = chartComponents[type];
-  const ChartPrimitive = type === 'line' ? Line : type === 'bar' ? Bar : Area;
+  const ChartPrimitive = (type === 'line' ? Line : type === 'bar' ? Bar : Area) as typeof Line;
 
   return (
     <ChartContainer config={chartConfig} className="w-full h-[300px]">

@@ -37,7 +37,7 @@ export function DashboardNav({ isCollapsed, onLinkClick }: { isCollapsed: boolea
   const pathname = usePathname();
   const { userRole } = useUserRole();
 
-  const lowerCaseRole = userRole.toLowerCase() as keyof typeof navConfig;
+  const lowerCaseRole = (userRole?.toLowerCase() ?? 'student') as keyof typeof navConfig;
   const navItems = navConfig[lowerCaseRole] || navConfig.student;
 
   const handleLinkClick = () => {
