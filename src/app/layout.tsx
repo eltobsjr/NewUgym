@@ -6,6 +6,16 @@ import { ThemeProvider } from '@/components/theme-provider';
 export const metadata: Metadata = {
   title: 'Ugym - Seu Parceiro de Fitness',
   description: 'Gerencie seus treinos, acompanhe seu progresso e mantenha-se motivado com o Ugym.',
+  manifest: '/manifest.json',
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: 'default',
+    title: 'Ugym',
+  },
+  icons: {
+    icon: '/icon.png',
+    apple: '/apple-touch-icon.png',
+  },
 };
 
 export default function RootLayout({
