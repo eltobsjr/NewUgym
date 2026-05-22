@@ -280,14 +280,20 @@ const WorkoutBuilder = ({ onSave, onBack, plan: initialPlan }: { onSave: (plan: 
         <AddExerciseModal open={isAddExoModalOpen} onOpenChange={setAddExoModalOpen} onAddExercises={handleAddExercises} />
         <DragDropContext onDragEnd={handleOnDragEnd}>
             <div className="flex flex-col h-full">
-                <header className="flex items-center justify-between p-4 border-b">
-                    <Button variant="ghost" onClick={onBack}><ArrowLeft className="mr-2" /> Voltar para Planos</Button>
-                    <h1 className="text-xl font-bold">{plan.name || "Novo Plano"}</h1>
-                    <Button onClick={() => onSave(plan)}><Save className="mr-2"/> Salvar Plano</Button>
+                <header className="flex items-center justify-between gap-2 p-3 sm:p-4 border-b">
+                    <Button variant="ghost" onClick={onBack} className="shrink-0 px-2 sm:px-4">
+                        <ArrowLeft className="h-4 w-4" />
+                        <span className="hidden sm:inline ml-2">Voltar</span>
+                    </Button>
+                    <h1 className="text-base sm:text-xl font-bold truncate flex-1 text-center px-2">{plan.name || "Novo Plano"}</h1>
+                    <Button onClick={() => onSave(plan)} className="shrink-0 px-2 sm:px-4">
+                        <Save className="h-4 w-4" />
+                        <span className="hidden sm:inline ml-2">Salvar</span>
+                    </Button>
                 </header>
-                <div className="flex-1 grid grid-cols-1 md:grid-cols-[320px_1fr] overflow-hidden">
+                <div className="flex-1 flex flex-col md:grid md:grid-cols-[320px_1fr] overflow-y-auto md:overflow-hidden">
                     {/* Left Sidebar */}
-                    <aside className="border-r flex flex-col overflow-y-auto">
+                    <aside className="border-b md:border-b-0 border-r flex flex-col md:overflow-y-auto">
                         <div className="p-4 space-y-4">
                             <div className="space-y-1">
                                 <Label htmlFor="plan-name">Nome do Plano</Label>
@@ -339,7 +345,7 @@ const WorkoutBuilder = ({ onSave, onBack, plan: initialPlan }: { onSave: (plan: 
                     </aside>
                     
                     {/* Main Content */}
-                    <main className="overflow-y-auto p-6">
+                    <main className="md:overflow-y-auto p-4 sm:p-6">
                         {activeDay ? (
                             <div className="space-y-6">
                                 <div className="flex justify-between items-center">
@@ -382,7 +388,7 @@ const WorkoutBuilder = ({ onSave, onBack, plan: initialPlan }: { onSave: (plan: 
                                     </ClientOnlyDroppable>
                                 </CardContent>
                                 <CardFooter>
-                                    <Button variant="outline" onClick={() => setAddExoModalOpen(true)}><PlusCircle className="mr-2 h-4 w-4" />Adicionar Exercício</Button>
+                                    <Button variant="outline" onClick={() => setAddExoModalOpen(true)} className="w-full sm:w-auto"><PlusCircle className="mr-2 h-4 w-4" />Adicionar Exercício</Button>
                                 </CardFooter>
                                 </Card>
                             </div>
@@ -583,9 +589,9 @@ const TrainerView = () => {
       </div>
       
       <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList>
-            <TabsTrigger value="templates">Meus Planos (Modelos)</TabsTrigger>
-            <TabsTrigger value="assignments">Planos de Alunos</TabsTrigger>
+        <TabsList className="w-full sm:w-auto">
+            <TabsTrigger value="templates" className="flex-1 sm:flex-none text-xs sm:text-sm">Meus Planos (Modelos)</TabsTrigger>
+            <TabsTrigger value="assignments" className="flex-1 sm:flex-none text-xs sm:text-sm">Planos de Alunos</TabsTrigger>
         </TabsList>
         <TabsContent value="templates">
             <Card>
@@ -594,6 +600,7 @@ const TrainerView = () => {
                     <CardDescription>Crie e gerencie planos reutilizáveis para seus alunos.</CardDescription>
                 </CardHeader>
                 <CardContent>
+                    <div className="overflow-x-auto">
                      <Table>
                         <TableHeader>
                           <TableRow>
@@ -633,6 +640,7 @@ const TrainerView = () => {
                           ))}
                         </TableBody>
                     </Table>
+                    </div>
                 </CardContent>
             </Card>
         </TabsContent>
@@ -643,6 +651,7 @@ const TrainerView = () => {
                     <CardDescription>Visualize e edite o plano de treino de cada um dos seus alunos.</CardDescription>
                 </CardHeader>
                 <CardContent>
+                    <div className="overflow-x-auto">
                      <Table>
                         <TableHeader>
                           <TableRow>
@@ -659,7 +668,8 @@ const TrainerView = () => {
                                    <TableCell className="text-right">
                                        {ass.plan ? (
                                            <Button variant="outline" size="sm" onClick={() => handleEditPlan(ass.plan!)}>
-                                               <Edit className="mr-2 h-4 w-4"/> Ver/Editar Plano
+                                               <Edit className="h-4 w-4 sm:mr-2" />
+                                               <span className="hidden sm:inline">Ver/Editar</span>
                                            </Button>
                                        ) : (
                                             <Button variant="secondary" size="sm" disabled>Atribuir um plano</Button>
@@ -669,6 +679,7 @@ const TrainerView = () => {
                             ))}
                         </TableBody>
                     </Table>
+                    </div>
                 </CardContent>
             </Card>
         </TabsContent>
