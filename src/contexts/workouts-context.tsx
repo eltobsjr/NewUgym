@@ -259,7 +259,15 @@ export const WorkoutsProvider = ({ children }: { children: ReactNode }) => {
                         day_name: day.day,
                         focus: day.focus,
                         is_rest_day: day.exercises.length === 0,
-                        exercises: [],
+                        exercises: day.exercises
+                            .filter(ex => ex.exerciseId)
+                            .map((ex, idx) => ({
+                                exercise_id: ex.exerciseId!,
+                                sets: ex.sets,
+                                reps: ex.reps,
+                                notes: ex.notes,
+                                order_index: idx,
+                            })),
                     })),
                 }),
             })
